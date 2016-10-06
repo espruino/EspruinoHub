@@ -1,0 +1,15 @@
+{
+  "name": "PuckHub",
+  "version": "0.0.0",
+  "description": "Linux based hub software for Puck.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mqtt": "^2.0.1",
+    "noble": "^1.7.0"
+  }
+}
