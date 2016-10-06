@@ -1,28 +1,42 @@
 var mqtt = require('mqtt')
 var noble = require('noble');
 
+var ATTRIBUTE_NAMES = {
+ "1809" : "Temperature",
+ "180a" : "Device Information",
+ "180f" : "Battery Percentage",
+ "181c" : "User Data",
+ "fe9f" : "Eddystone"
+};
+
 var inRange = [];
 
 noble.on('discover', function(peripheral) {
-  var id = peripheral.id;
+  var id = peripheral.address;
   var entered = !inRange[id];
 //  console.log(JSON.stringify(peripheral.advertisement,null,2));
 
   if (entered) {
     inRange[id] = {
-      peripheral: peripheral
+      id : id,
+      peripheral: peripheral,
+      name : "?",
+      data : {}
     };
-    mqttSend("/presence/ble", peripheral.address);
+    mqttSend("/presence/ble/"+id, "1");
   }
   var mqttData = {
     rssi: peripheral.rssi,
   };
-  if (peripheral.advertisement.localName)
+  if (peripheral.advertisement.localName) {
     mqttData.name = peripheral.advertisement.localName;
+    inRange[id].name = peripheral.advertisement.localName;
+  }
   mqttSend("/ble/"+peripheral.address, JSON.stringify(mqttData));
 
   peripheral.advertisement.serviceData.forEach(function(d) {
     mqttSend("/ble/"+peripheral.address+"/"+d.uuid, JSON.stringify(d.data));
+    inRange[id].data[d.uuid] = d.data;
   });
 
   inRange[id].lastSeen = Date.now();
@@ -53,70 +67,43 @@ function mqttSend(topic, message) {
   if (mqttConnected) client.publish(topic, message);
 }
 
-
-/*
-
-{
-  "localName": "Espruino NRF52832DK",
-  "serviceData": [
-    {
-      "uuid": "180f",
-      "data": [
-        95
-      ]
+function checkForPresence() {
+  var timeout = Date.now() - 60*1000; // 60 seconds
+  Object.keys(inRange).forEach(function(id) {
+    if (inRange[id].lastSeen < timeout) {
+      mqttSend("/presence/ble/"+id, "0");
+      delete inRange[id];
     }
-  ],
-  "serviceUuids": [
-    "6e400001b5a3f393e0a9e50e24dcca9e"
-  ],
-  "solicitationServiceUuids": [],
-  "serviceSolicitationUuids": []
+  });
 }
 
+setInterval(checkForPresence, 1000);
+setInterval(dumpStatus, 1000);
 
-{ _noble: 
-   { state: 'poweredOn',
-     address: 'b8:27:eb:ed:60:4b',
-     _bindings: 
-      { _state: 'poweredOn',
-        _addresses: [Object],
-        _addresseTypes: [Object],
-        _connectable: [Object],
-        _pendingConnectionUuid: null,
-        _connectionQueue: [],
-        _handles: {},
-        _gatts: {},
-        _aclStreams: {},
-        _hci: [Object],
-        _gap: [Object],
-        _events: [Object],
-        onSigIntBinded: [Function],
-        _scanServiceUuids: [] },
-     _peripherals: { f3ec654485db: [Object], f2fce799045f: [Circular] },
-     _services: { f3ec654485db: {}, f2fce799045f: {} },
-     _characteristics: { f3ec654485db: {}, f2fce799045f: {} },
-     _descriptors: { f3ec654485db: {}, f2fce799045f: {} },
-     _discoveredPeripheralUUids: [ 'f3ec654485db', 'f2fce799045f' ],
-     _events: 
-      { warning: [Function],
-        discover: [Function],
-        stateChange: [Function] },
-     _allowDuplicates: undefined },
-  id: 'f2fce799045f',
-  uuid: 'f2fce799045f',
-  address: 'f2:fc:e7:99:04:5f',
-  addressType: 'random',
-  connectable: true,
-  advertisement: 
-   { localName: 'EST',
-     txPowerLevel: undefined,
-     manufacturerData: <Buffer 4c 00 02 15 b9 40 7f 30 f5 f8 46 6e af f9 25 55 6b 57 fe 6d 04 5f e7 99 b6>,
-     serviceData: [ [Object] ],
-     serviceUuids: [ '180f' ],
-     solicitationServiceUuids: [],
-     serviceSolicitationUuids: [] },
-  rssi: -91,
-  services: null,
-  state: 'disconnected' }
+function dumpStatus() {
+  // clear screen
+  console.log('\033c');
+  //process.stdout.write('\x1B[2J\x1B[0f');
+  // ...
+  console.log("Scanning... "+(new Date()).toString());
+  console.log();
+  // sort by most recent
+  var arr = [];
+  for (var id in inRange)
+    arr.push(inRange[id]);
+  arr.sort(function(a,b) { return a.rssi - b.rssi; });    
+  // output
+  var amt = 3;
+  var maxAmt = process.stdout.getWindowSize()[1];
+  for (var i in arr) {
+    var p = arr[i];
+    if (++amt > maxAmt) { console.log("..."); return; }
+    console.log(p.id+" - "+p.name+" (RSSI "+p.rssi+")");
+    for (var j in p.data) {
+      if (++amt > maxAmt) { console.log("..."); return; }
+      var n = ATTRIBUTE_NAMES[j] ? ATTRIBUTE_NAMES[j] : j;
+      console.log("  "+n+" => "+JSON.stringify(p.data[j]));
+    }
+  }
+}
 
-*/
