@@ -18,4 +18,7 @@ listener 1883
 # listen to all, verbose
 mosquitto_sub -h localhost -t /# -v
 
- mosquitto_pub -h localhost -t test/topic -m "Hello world"
+# Test publish
+mosquitto_pub -h localhost -t test/topic -m "Hello world"
+
+
