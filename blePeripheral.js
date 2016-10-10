@@ -2,6 +2,8 @@
 
 var bleno = require('bleno');
 
+if (Buffer.from===undefined) // Oh, thanks Node.
+  Buffer.from = function(x) { return new Buffer(x); }
 
 // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.http_proxy.xml
 
@@ -15,7 +17,6 @@ var httpStatusCode = new bleno.Characteristic({ // org.bluetooth.characteristic.
   // 16 bit status code + Data Status
   uuid: '2AB8',
   properties: ['notify'],
-  value: Buffer.from([0,0,0]]),
 });
 
 var httpProxyService = new bleno.PrimaryService({
