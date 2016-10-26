@@ -83,8 +83,34 @@ HTTP_DATA_STATUS_BIT = { // 3rd byte of http_status_code
   // 1	The entity-body field exceeded 512 octets in length and the first 512 octets were saved in the HTTP Headers characteristic
 };
 
+function httpSetStatusCode(httpCode, httpStatus) {
+  console.log("Status code => "+httpCode+" "+httpStatus, httpProxy.body);
+  var data = new Buffer(3);
+  data.writeUInt16LE(httpCode, 0);
+  data.writeUInt8(httpStatus, 2);
+  httpStatusCode.updateValueCallback(data);
+}
+
 function httpStateHandler(state) {
-  console.log("[HTTP PROXY] State => "+state);
+  console.log("[HTTP PROXY] State => "+state, httpProxy);
+  if (state==HTTP_CONTROL.GET) {
+    var options = require("url").parse(httpProxy.uri);
+    options.method = "GET";
+    var req = require("http").request(options, function(res) {
+      httpProxy.headers = "";
+      Object.keys(res.headers).forEach(function(k) {
+        httpProxy.headers += k+": "+res.headers[k]+"\r\n"; 
+      });
+      httpSetStatusCode(res.statusCode, HTTP_DATA_STATUS_BIT.HEADERS_RECIEVED);
+      httpProxy.body = "";
+      res.on('data',function(d) { httpProxy.body += d.toString(); });
+      res.on('end',function() { httpSetStatusCode(res.statusCode, HTTP_DATA_STATUS_BIT.HEADERS_RECIEVED|HTTP_DATA_STATUS_BIT.BODY_RECIEVED); });
+    });
+    req.on('error', function(e) {
+      console.log("Problem with request: "+e.message);
+    });
+    req.end();
+  }
 }
 
 bleno.on('stateChange', function(state) {
@@ -93,7 +119,13 @@ bleno.on('stateChange', function(state) {
     bleno.startAdvertising("PuckHub", ['1823'], function (error) {
       console.log("startAdvertising " + error);
     });
-    bleno.setServices(httpProxyService, function (error) {
+  }
+});
+bleno.on('advertisingStart', function(error) {
+  console.log('on -> advertisingStart: ' + (error ? 'error ' + error : 'success'));
+
+  if (!error) {
+    bleno.setServices([httpProxyService], function (error) {
       console.log("setServices " + error);
     });
   }
