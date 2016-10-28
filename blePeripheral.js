@@ -60,7 +60,7 @@ var httpProxyService = new bleno.PrimaryService({
 HTTP_CONTROL = {
   GET     : 1,	// HTTP GET Request	N/A	Initiates an HTTP GET Request.
   HEAD    : 2,	//	HTTP HEAD Request	N/A	Initiates an HTTP HEAD Request.
-  PORT    : 3,	//	HTTP POST Request	N/A	Initiates an HTTP POST Request.
+  POST    : 3,	//	HTTP POST Request	N/A	Initiates an HTTP POST Request.
   PUT     : 4,	//	HTTP PUT Request	N/A	Initiates an HTTP PUT Request.
   DELETE  : 5,	//	HTTP DELETE Request	N/A	Initiates an HTTP DELETE Request.
   SGET    : 6,	//	HTTPS GET Request	N/A	Initiates an HTTPS GET Reques.t
@@ -97,10 +97,26 @@ function httpSetStatusCode(httpCode, httpStatus) {
 
 function httpStateHandler(state) {
   console.log("[HTTP PROXY] State => "+state, httpProxy);
-  if (state==HTTP_CONTROL.GET) {
-    var options = require("url").parse(httpProxy.uri);
-    options.method = "GET";
-    var req = require("http").request(options, function(res) {
+  var method, protocol;
+  switch (state) {
+    case HTTP_CONTROL.GET  :  method = "GET"; protocol = "http:"; break;
+    case HTTP_CONTROL.HEAD :  method = "HEAD"; protocol = "http:"; break;
+    case HTTP_CONTROL.POST :  method = "POST"; protocol = "http:"; break;
+    case HTTP_CONTROL.PUT  :  method = "PUT"; protocol = "http:"; break;
+    case HTTP_CONTROL.DELETE :  method = "DELETE"; protocol = "https:"; break;
+    case HTTP_CONTROL.SGET  :  method = "GET"; protocol = "https:"; break;
+    case HTTP_CONTROL.SHEAD :  method = "HEAD"; protocol = "https:"; break;
+    case HTTP_CONTROL.SPOST :  method = "POST"; protocol = "https:"; break;
+    case HTTP_CONTROL.SPUT  :  method = "PUT"; protocol = "https:"; break;
+    case HTTP_CONTROL.SDELETE :  method = "DELETE"; protocol = "https:"; break;
+  }  
+
+  if (method && protocol) {
+    var options = require("url").parse(protocol+"//"+httpProxy.uri);
+    options.method = method;
+
+    var handler = (protocol=="https:") ? require("https") : require("http");
+    var req = handler.request(options, function(res) {
       httpProxy.headers = "";
       Object.keys(res.headers).forEach(function(k) {
         httpProxy.headers += k+": "+res.headers[k]+"\r\n"; 
