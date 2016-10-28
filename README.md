@@ -1,5 +1,6 @@
 
 sudo apt-get install node npm mosquitto mosquitto-clients
+sudo apt-get install bluetooth bluez libbluetooth-dev libudev-dev
 
 # As it comes, NPM on the Pi is broken
 # and doesn't like installing native libs
@@ -22,3 +23,12 @@ mosquitto_sub -h localhost -t /# -v
 mosquitto_pub -h localhost -t test/topic -m "Hello world"
 
 
+
+
+Run with 
+
+```
+################################
+NOBLE_MULTI_ROLE=1 node index.js
+################################
+```

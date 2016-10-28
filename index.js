@@ -1,6 +1,8 @@
 var mqtt = require('mqtt')
 var noble = require('noble');
 
+require("./blePeripheral.js"); // Enable HTTP Proxy
+
 var ATTRIBUTE_NAMES = {
  "1809" : "Temperature",
  "180a" : "Device Information",

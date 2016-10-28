@@ -1,5 +1,4 @@
 // BLE peripheral that handles MQTT and HTTP
-
 var bleno = require('bleno');
 
 if (Buffer.from===undefined) // Oh, thanks Node.
@@ -10,7 +9,7 @@ if (Buffer.from===undefined) // Oh, thanks Node.
 var httpProxy = {
   uri : "",
   headers : "",
-  body : ""
+  body : "EMPTY"
 };
 
 var httpStatusCode = new bleno.Characteristic({ // org.bluetooth.characteristic.http_status_code
@@ -25,7 +24,11 @@ var httpProxyService = new bleno.PrimaryService({
       new bleno.Characteristic({ // org.bluetooth.characteristic.uri
         uuid: '2AB6',
         properties: ['write'],
-        onWriteRequest : function(data, offset, withoutResponse, callback) { httpProxy.uri = data.toString('utf8'); callback(bleno.Characteristic.RESULT_SUCCESS); }
+        onWriteRequest : function(data, offset, withoutResponse, callback) { 
+          httpProxy.uri = data.toString('utf8'); 
+          console.log("URI -> "+httpProxy.uri); 
+          callback(bleno.Characteristic.RESULT_SUCCESS); 
+        }
       }),
       new bleno.Characteristic({ // org.bluetooth.characteristic.http_headers
         uuid: '2AB7',
@@ -88,7 +91,8 @@ function httpSetStatusCode(httpCode, httpStatus) {
   var data = new Buffer(3);
   data.writeUInt16LE(httpCode, 0);
   data.writeUInt8(httpStatus, 2);
-  httpStatusCode.updateValueCallback(data);
+  if (httpStatusCode.updateValueCallback)
+    httpStatusCode.updateValueCallback(data);
 }
 
 function httpStateHandler(state) {
