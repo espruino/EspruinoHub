@@ -1,3 +1,13 @@
+/*
+TODO:
+
+Keep connection open for 30 secs after first write
+Queue subsequent requests (to avoid double-connect/etc)
+Respond to /ble/read with /ble/characteristic
+Handle over-size writes
+Display log messages alongside device status
+*/
+
 var mqtt = require('mqtt')
 var noble = require('noble');
 
@@ -8,10 +18,20 @@ var ATTRIBUTE_NAMES = {
  "180a" : "Device Information",
  "180f" : "Battery Percentage",
  "181c" : "User Data",
- "fe9f" : "Eddystone"
+ "fe9f" : "Eddystone",
+ "6e400001b5a3f393e0a9e50e24dcca9e" : "nus",
+ "6e400002b5a3f393e0a9e50e24dcca9e" : "nus_tx",
+ "6e400003b5a3f393e0a9e50e24dcca9e" : "nus_rx",
 };
 
 var inRange = [];
+
+
+function lookupAttribute(attr) {
+  for (var i in ATTRIBUTE_NAMES)
+    if (ATTRIBUTE_NAMES[i]==attr) return i;
+  return attr;
+}
 
 noble.on('discover', function(peripheral) {
   var id = peripheral.address;
@@ -76,9 +96,11 @@ client.on('message', function (topic, message) {
   if (path[0]=="ble" && path[1]=="write") {    
     var id = path[2].toLowerCase();
     if (inRange[id]) {
-     var service = path[3].toLowerCase();
-     var charc = path[4].toLowerCase();
      var device = inRange[id].peripheral;
+     var service = lookupAttribute(path[3].toLowerCase());
+     var charc = lookupAttribute(path[4].toLowerCase());
+     console.log("Service ",service);
+     console.log("Characteristic ",charc);
      device.connect(function (error) {
        if (error) {
          console.log("BT> ERROR Connecting");
@@ -100,6 +122,7 @@ client.on('message', function (topic, message) {
            });
          } else {
            console.log("BT> No characteristic found");
+           console.log("BT> Disconnecting...");
            device.disconnect();
          }
        });
@@ -153,5 +176,5 @@ function dumpStatus() {
 
 // -----------------------------------------
 setInterval(checkForPresence, 1000);
-//setInterval(dumpStatus, 1000);
+setInterval(dumpStatus, 1000);
 
