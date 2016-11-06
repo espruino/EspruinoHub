@@ -1,3 +1,8 @@
+sudo apt-get install nodered
+sudo systemctl enable nodered.service
+cd .node-red/
+sudo npm install node-red-contrib-ui node-red-contrib-ble-uart node-red-contrib-graphs
+
 
 sudo apt-get install node npm mosquitto mosquitto-clients
 sudo apt-get install bluetooth bluez libbluetooth-dev libudev-dev
