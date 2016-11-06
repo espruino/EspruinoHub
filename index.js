@@ -34,16 +34,25 @@ noble.on('discover', function(peripheral) {
     mqttData.name = peripheral.advertisement.localName;
     inRange[id].name = peripheral.advertisement.localName;
   }
-  mqttSend("/ble/"+peripheral.address, JSON.stringify(mqttData));
-
-  peripheral.advertisement.serviceData.forEach(function(d) {
-    mqttSend("/ble/"+peripheral.address+"/"+d.uuid, JSON.stringify(d.data));
-    inRange[id].data[d.uuid] = d.data;
-  });
-
   inRange[id].lastSeen = Date.now();
   inRange[id].rssi = peripheral.rssi;
+
+  mqttSend("/ble/advertise/"+id, JSON.stringify(mqttData));
+  mqttSend("/ble/advertise/"+id+"/rssi", JSON.stringify(peripheral.rssi));
+
+  peripheral.advertisement.serviceData.forEach(function(d) {
+    mqttSend("/ble/advertise/"+id+"/"+d.uuid, JSON.stringify(d.data));
+    inRange[id].data[d.uuid] = d.data;
+  });
 });
+
+  function str2buf(str) {
+    var buf = new Buffer(str.length);
+    for (var i = 0; i < buf.length; i++) {
+      buf.writeUInt8(str.charCodeAt(i), i);
+    }
+    return buf;
+  }
 
 noble.on('stateChange',  function(state) {
   if (state!="poweredOn") return;
@@ -58,11 +67,47 @@ client.on('connect', function () {
   console.log("MQTT Connected");
   mqttConnected = true;
 //  client.publish('presence', 'Hello mqtt')
+  client.subscribe("/ble/write/#");
 });
  
 client.on('message', function (topic, message) {
   console.log("MQTT>"+topic+" => "+message.toString())
-  // client.end();
+  var path = topic.substr(1).split("/");
+  if (path[0]=="ble" && path[1]=="write") {    
+    var id = path[2].toLowerCase();
+    if (inRange[id]) {
+     var service = path[3].toLowerCase();
+     var charc = path[4].toLowerCase();
+     var device = inRange[id].peripheral;
+     device.connect(function (error) {
+       if (error) {
+         console.log("BT> ERROR Connecting");
+       }
+       console.log("BT> Connected");
+       device.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
+         console.log("BT> Got characteristics");
+         var characteristic;
+         for (var i=0;i<characteristics.length;i++)
+           if (characteristics[i].uuid==charc) 
+             characteristic = characteristics[i];
+         if (characteristic) {
+           console.log("BT> Found characteristic");
+	   var data = str2buf(message.toString());
+	   // TODO: writing long strings
+           characteristic.write(data, false, function() {
+             console.log("BT> Disconnecting...");
+             device.disconnect();
+           });
+         } else {
+           console.log("BT> No characteristic found");
+           device.disconnect();
+         }
+       });
+     });
+    } else {
+      console.log("Write to "+id+" but not in range");
+    }
+  }
 });
 
 function mqttSend(topic, message) {
@@ -78,9 +123,6 @@ function checkForPresence() {
     }
   });
 }
-
-setInterval(checkForPresence, 1000);
-setInterval(dumpStatus, 1000);
 
 function dumpStatus() {
   // clear screen
@@ -108,4 +150,8 @@ function dumpStatus() {
     }
   }
 }
+
+// -----------------------------------------
+setInterval(checkForPresence, 1000);
+//setInterval(dumpStatus, 1000);
 
