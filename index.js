@@ -6,6 +6,7 @@ Queue subsequent requests (to avoid double-connect/etc)
 Respond to /ble/read with /ble/characteristic
 Handle over-size writes
 Display log messages alongside device status
+Don't broadcast data if it hasn't changed?
 */
 
 var mqtt = require('mqtt')
@@ -22,6 +23,12 @@ var ATTRIBUTE_NAMES = {
  "6e400001b5a3f393e0a9e50e24dcca9e" : "nus",
  "6e400002b5a3f393e0a9e50e24dcca9e" : "nus_tx",
  "6e400003b5a3f393e0a9e50e24dcca9e" : "nus_rx",
+};
+
+var ATTRIBUTE_HANDLER = {
+ "1809" : function(a) {
+   return { temp : a[0] }
+  }
 };
 
 var inRange = [];
@@ -63,6 +70,13 @@ noble.on('discover', function(peripheral) {
   peripheral.advertisement.serviceData.forEach(function(d) {
     mqttSend("/ble/advertise/"+id+"/"+d.uuid, JSON.stringify(d.data));
     inRange[id].data[d.uuid] = d.data;
+    if (d.uuid in ATTRIBUTE_HANDLER) {
+      var v = ATTRIBUTE_HANDLER[d.uuid](d.data);
+      for (var k in v) {
+        mqttSend("/ble/advertise/"+id+"/"+k, JSON.stringify(v[k]));
+        mqttSend("/ble/"+k+"/"+id, JSON.stringify(v[k]));
+      }
+    }
   });
 });
 
