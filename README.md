@@ -30,10 +30,5 @@ mosquitto_pub -h localhost -t test/topic -m "Hello world"
 
 
 
-Run with 
+Run with `start.sh` 
 
-```
-################################
-NOBLE_MULTI_ROLE=1 node index.js
-################################
-```
