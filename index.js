@@ -27,9 +27,19 @@ var ATTRIBUTE_NAMES = {
 
 var ATTRIBUTE_HANDLER = {
  "1809" : function(a) {
-   return { temp : a[0] }
+   return { temp : (a.length==2) ? (((a[1]<<8)+a[0])/100) : a[0] }
   }
 };
+
+/** If the device is listed here, we use the human readable name
+when printing status and publishing on MQTT */
+var KNOWN_DEVICES = {
+  "c0:52:3f:50:42:c9" : "office",
+  "fc:a6:c6:04:db:79" : "hall_down",
+  "cf:71:de:4d:f8:48" : "hall_up"
+};
+// TODO: add this to config
+
 
 var inRange = [];
 
@@ -42,12 +52,17 @@ function lookupAttribute(attr) {
 
 noble.on('discover', function(peripheral) {
   var id = peripheral.address;
+
+  if (id in KNOWN_DEVICES)
+    id = KNOWN_DEVICES[id];
+
   var entered = !inRange[id];
 //  console.log(JSON.stringify(peripheral.advertisement,null,2));
 
   if (entered) {
     inRange[id] = {
       id : id,
+      address : peripheral.address,
       peripheral: peripheral,
       name : "?",
       data : {}
@@ -68,8 +83,15 @@ noble.on('discover', function(peripheral) {
   mqttSend("/ble/advertise/"+id+"/rssi", JSON.stringify(peripheral.rssi));
 
   peripheral.advertisement.serviceData.forEach(function(d) {
+    /* Don't keep sending the same old data on MQTT. Only send it if
+    it's changed or >1 minute old. */
+    if (inRange[id].data[d.uuid] &&
+        inRange[id].data[d.uuid].payload == d.data &&
+        inRange[id].data[d.uuid].time > Date.now()*60000)
+     return;
+            
     mqttSend("/ble/advertise/"+id+"/"+d.uuid, JSON.stringify(d.data));
-    inRange[id].data[d.uuid] = d.data;
+    inRange[id].data[d.uuid] = { payload : d.data, time : Date.now() };
     if (d.uuid in ATTRIBUTE_HANDLER) {
       var v = ATTRIBUTE_HANDLER[d.uuid](d.data);
       for (var k in v) {
@@ -183,7 +205,11 @@ function dumpStatus() {
     for (var j in p.data) {
       if (++amt > maxAmt) { console.log("..."); return; }
       var n = ATTRIBUTE_NAMES[j] ? ATTRIBUTE_NAMES[j] : j;
-      console.log("  "+n+" => "+JSON.stringify(p.data[j]));
+      var v = p.data[j].payload;
+      if (j in ATTRIBUTE_HANDLER) 
+        v = ATTRIBUTE_HANDLER[j](v);
+
+      console.log("  "+n+" => "+JSON.stringify(v));
     }
   }
 }
