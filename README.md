@@ -31,10 +31,11 @@ npm install
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
 
+
 Usage
 -----
 
-Run with `start.sh` (ideally you'd set this to auto-start)
+Run with `start.sh` (ideally you'd set this to auto-start - see below)
 
 You can then access Node-red using `http://localhost:1880`
 
@@ -51,6 +52,30 @@ Useful MQTT parts are:
 * `/ble/advertise/DEVICE/rssi` - Device signal strength
 * `/ble/advertise/DEVICE/SERVICE` - Raw service data (as JSON)
 * `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data. `temp` is the obvious one
+
+
+Auto Start
+----------
+
+There are a few ways to get services running all the time on a Raspberry Pi, but
+as it's got a video output it's nice to be able to use that as a status display.
+
+To do this:
+
+* Edit `.bashrc` and add the following right at the bottom:
+
+```
+if [ $(tty) == /dev/tty1 ]; then
+  while true; do
+    EspruinoHub/start.sh
+    sleep 1s
+  done
+fi
+```
+
+* Now run `sudo raspi-config`, choose `Boot Options`, `Desktop / CLI`, and `Console Autologin`
+
+* Next time you reboot, the console will automatically run `EspruinoHub`
 
 
 Testing MQTT
@@ -85,5 +110,5 @@ TODO
 ----
 
 * Keep connection open in `connect.js` for 30 secs after first write
-* Re-use the connection for queues requests
+* Re-use the connection for queued requests
 * Handle over-size writes
