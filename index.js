@@ -86,8 +86,8 @@ noble.on('discover', function(peripheral) {
     /* Don't keep sending the same old data on MQTT. Only send it if
     it's changed or >1 minute old. */
     if (inRange[id].data[d.uuid] &&
-        inRange[id].data[d.uuid].payload == d.data &&
-        inRange[id].data[d.uuid].time > Date.now()*60000)
+        inRange[id].data[d.uuid].payload.toString() == d.data.toString() &&
+        inRange[id].data[d.uuid].time > Date.now()-60000)
      return;
             
     mqttSend("/ble/advertise/"+id+"/"+d.uuid, JSON.stringify(d.data));
