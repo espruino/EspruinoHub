@@ -80,6 +80,15 @@ sudo hciconfig hci0 up
 See https://github.com/sandeepmistry/bleno
 
 
+Troubleshooting
+---------------
+
+### When using the HTTP Proxy I get `BLOCKED` returned in the HTTP body
+
+Your BLE device isn't in the whitelist in `config.json` - because the HTTP Proxy
+exposes your internet connection to the world, only BLE devices with the addresses
+you have specified beforehand are allowed to connect.
+
 
 TODO
 ----
