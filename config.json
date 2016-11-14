@@ -1,0 +1,12 @@
+{
+  "// If a device's address is here, it'll be given a human-readable name":0,
+  "known_devices" : {
+    "c0:52:3f:50:42:c9" : "office",
+    "fc:a6:c6:04:db:79" : "hall_down",
+    "cf:71:de:4d:f8:48" : "hall_up"
+  },
+  "// If there are any addresses here, they are given access to the HTTP proxy":0,
+  "http_whitelist" : [
+    
+  ]
+}

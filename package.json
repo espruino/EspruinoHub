@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bleno": "^0.4.1",
     "mqtt": "^2.0.1",
     "noble": "^1.7.0"
   }
