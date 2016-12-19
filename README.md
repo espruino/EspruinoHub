@@ -31,6 +31,8 @@ npm install
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
 
+**Note:** On non-Raspberry Pi devices, Mosquitto (the MQTT server) may default to not allowing external connections to MQTT. To fix this edit `/etc/mosquitto/conf.d/local.conf` and set `allow_anonymous` to `true`.
+
 
 Usage
 -----
