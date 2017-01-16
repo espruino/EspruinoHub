@@ -10,8 +10,11 @@ Setting up
 Assuming a blank Pi:
 
 ```
-# Get node, npm, node-red, etc
-sudo apt-get install npm mosquitto mosquitto-clients nodered bluetooth bluez libbluetooth-dev libudev-dev
+# Install a modern version of nodejs
+curl -sL https://deb.nodesource.com/setup_7.x |sudo -E bash -
+sudo apt-get install nodejs
+# Get dependencies
+sudo apt-get install mosquitto mosquitto-clients nodered bluetooth bluez libbluetooth-dev libudev-dev
 # Install node-red service
 sudo systemctl enable nodered.service
 # Start nodered manually this one time (this creates ~/.node-red)
