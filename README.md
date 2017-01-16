@@ -10,22 +10,18 @@ Setting up
 Assuming a blank Pi:
 
 ```
-# Install a modern version of nodejs
-curl -sL https://deb.nodesource.com/setup_7.x |sudo -E bash -
-sudo apt-get install nodejs
+# Install a modern version of nodejs and nodered
+sudo apt-get install build-essential python-rpi.gpio
+bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
 # Get dependencies
-sudo apt-get install mosquitto mosquitto-clients nodered bluetooth bluez libbluetooth-dev libudev-dev
-# Install node-red service
+sudo apt-get install mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
+
+# Auto start node-red
 sudo systemctl enable nodered.service
 # Start nodered manually this one time (this creates ~/.node-red)
 sudo systemctl start nodered.service
 # Install the node-red UI
 cd ~/.node-red && npm install node-red-contrib-ui
-
-# As it comes, NPM on the Pi is broken
-# and doesn't like installing native libs. Update NPM
-sudo npm -g install npm node-gyp
-
 # Now get this repository
 cd ~/
 git clone https://github.com/espruino/EspruinoHub
