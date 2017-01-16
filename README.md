@@ -11,17 +11,20 @@ Assuming a blank Pi:
 
 ```
 # Get node, npm, node-red, etc
-sudo apt-get install node npm mosquitto mosquitto-clients nodered bluetooth bluez libbluetooth-dev libudev-dev
+sudo apt-get install npm mosquitto mosquitto-clients nodered bluetooth bluez libbluetooth-dev libudev-dev
 # Install node-red service
 sudo systemctl enable nodered.service
+# Start nodered manually this one time (this creates ~/.node-red)
+sudo systemctl start nodered.service
 # Install the node-red UI
-cd .node-red && sudo npm install node-red-contrib-ui
+cd ~/.node-red && npm install node-red-contrib-ui
 
 # As it comes, NPM on the Pi is broken
 # and doesn't like installing native libs. Update NPM
 sudo npm -g install npm node-gyp
 
 # Now get this repository
+cd ~/
 git clone https://github.com/espruino/EspruinoHub
 # Install its' requirements
 cd EspruinoHub
