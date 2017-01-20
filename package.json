@@ -10,7 +10,6 @@
   "dependencies": {
     "bleno": "^0.4.1",
     "mqtt": "^2.0.1",
-    "noble": "^1.7.0",
-    "bluetooth-hci-socket": "^0.5"
+    "noble": "^1.7.0"
   }
 }
