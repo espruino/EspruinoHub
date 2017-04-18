@@ -52,7 +52,8 @@ via advertising.
 Useful MQTT parts are:
 
 * `/ble/presence/DEVICE` - 1 or 0 depending on whether device has been seen or not
-* `/ble/advertise/DEVICE` - JSON for device's broadcast name and rssi
+* `/ble/advertise/DEVICE` - JSON for device's broadcast name, rssi and manufacturer-specific data
+* `/ble/advertise/DEVICE/manufacturer/COMPANY/FORMAT` - Manufacturer-specific data in `hex` or `base64` format
 * `/ble/advertise/DEVICE/rssi` - Device signal strength
 * `/ble/advertise/DEVICE/SERVICE` - Raw service data (as JSON)
 * `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data. `temp` is the obvious one
