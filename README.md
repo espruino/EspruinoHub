@@ -82,6 +82,19 @@ fi
 
 * Next time you reboot, the console will automatically run `EspruinoHub`
 
+Alternatively, you can configure it as a system start-up job using `systemd`:
+```
+    sudo cp systemd-EspruinoHub.service /etc/systemd/system/EspruinoHub.service
+```
+and edit it as necessary to match your installation directory and user configuration.  Then, to start it for testing:
+```
+    sudo systemctl start EspruinoHub.service && sudo journalctl -f -u EspruinoHub
+```
+If it works, enable it to start on login:
+```
+    sudo systemctl enable EspruinoHub.service
+```
+
 
 Testing MQTT
 ------------
