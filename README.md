@@ -16,11 +16,11 @@ bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/
 # Get dependencies
 sudo apt-get install mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
 
-# Auto start node-red
+# Auto start Node-RED
 sudo systemctl enable nodered.service
 # Start nodered manually this one time (this creates ~/.node-red)
 sudo systemctl start nodered.service
-# Install the node-red UI
+# Install the Node-RED UI
 cd ~/.node-red && npm install node-red-contrib-ui
 # Now get this repository
 cd ~/
@@ -41,7 +41,7 @@ Usage
 
 Run with `start.sh` (ideally you'd set this to auto-start - see below)
 
-You can then access Node-red using `http://localhost:1880`
+You can then access Node-RED using `http://localhost:1880`
 
 Once you add UI elements and click `Deploy` they'll be visible at `http://localhost:1880/ui`
 
@@ -53,10 +53,15 @@ Useful MQTT parts are:
 
 * `/ble/presence/DEVICE` - 1 or 0 depending on whether device has been seen or not
 * `/ble/advertise/DEVICE` - JSON for device's broadcast name, rssi and manufacturer-specific data
-* `/ble/advertise/DEVICE/manufacturer/COMPANY/FORMAT` - Manufacturer-specific data in `hex` or `base64` format
+* `/ble/advertise/DEVICE/manufacturer/COMPANY` - Manufacturer-specific data (without leading company code)
 * `/ble/advertise/DEVICE/rssi` - Device signal strength
 * `/ble/advertise/DEVICE/SERVICE` - Raw service data (as JSON)
 * `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data. `temp` is the obvious one
+
+To decode the hex-encoded manufacturer-specific data, try:
+```
+var data = Buffer.from(msg.payload.manufacturerData, 'hex');
+```
 
 
 Auto Start
