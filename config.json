@@ -5,6 +5,12 @@
     "fc:a6:c6:04:db:79" : "hall_down",
     "cf:71:de:4d:f8:48" : "hall_up"
   },
+  "// We can add our own custom advertising UUIDs here with names to help decode them":0, 
+  "advertised_services" : {
+    "ffff" : {
+      "name" : "level"
+    }
+  },
 
   "// Set this to enable the HTTP proxy - it's off by default for safety":0,
   "// since it would be possible to spoof MAC addresses and use your":0,
