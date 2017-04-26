@@ -6,7 +6,7 @@
 
 [Unit]
 Description=EspruinoHub BLE -> MQTT bridge
-After=Node-RED.target
+After=nodered.target
 Documentation=https://github.com/espruino/EspruinoHub
 
 [Service]
