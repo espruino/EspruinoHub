@@ -10,9 +10,9 @@ After=Node-RED.target
 Documentation=https://github.com/espruino/EspruinoHub
 
 [Service]
-ExecStart=/home/node-red/EspruinoHub/start.sh
-WorkingDirectory=/home/node-red/EspruinoHub
-User=node-red
+ExecStart=/home/pi/EspruinoHub/start.sh
+WorkingDirectory=/home/pi/EspruinoHub
+User=pi
 Group=daemon
 Nice=10
 SyslogIdentifier=EspruinoHub
