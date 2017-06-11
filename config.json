@@ -20,5 +20,10 @@
   "// If there are any addresses here, they are given access to the HTTP proxy":0,
   "http_whitelist" : [
     "e7:e0:57:ad:36:a2"    
-  ]
+  ],
+  "mqtt_host": "mqtts://example.duckdns.org",
+  "mqtt_options": {
+    "username": "user",
+    "password": "pass"
+  }
 }
