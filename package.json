@@ -8,6 +8,7 @@
   "license": "MPLv2",
   "dependencies": {
     "mqtt": "^2.0.1",
-    "noble": "^1.7.0"
+    "noble": "^1.7.0",
+    "yamljs": "^0.2.10"
   }
 }
