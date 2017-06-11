@@ -12,7 +12,6 @@
  *  Entrypoint
  * ----------------------------------------------------------------------------
  */
-
 require("./lib/status.js").init(); // Enable Status reporting to console
 require("./lib/config.js").init(); // Load configuration
 require("./lib/discovery.js").init(); // Enable Advertising packet discovery
