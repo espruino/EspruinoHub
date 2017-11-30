@@ -49,7 +49,7 @@ The easiest way to get data is to add an MQTT listener node that requests
 `/ble/advertise/#` (`#` is a wildcard). This will output all information received
 via advertising.
 
-Useful MQTT parts are:
+Useful MQTT advertising parts are:
 
 * `/ble/presence/DEVICE` - 1 or 0 depending on whether device has been seen or not
 * `/ble/advertise/DEVICE` - JSON for device's broadcast name, rssi and manufacturer-specific data
@@ -61,6 +61,22 @@ Useful MQTT parts are:
 To decode the hex-encoded manufacturer-specific data, try:
 ```
 var data = Buffer.from(msg.payload.manufacturerData, 'hex');
+```
+
+You can also connect to a device:
+
+* `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` connects and writes to the charactertistic
+* `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic
+* `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic
+* `/ble/ping/DEVICE` connects, or maintains a connection to the device, and sends `/ble/pong/DEVICE` on success
+
+After connecting, EspruinoHub will stay connected for a few seconds unless there is
+any activity (eg a `write` or `ping`). So you can for instance evaluate something
+on a Puck.js BLE UART connection with:
+
+```
+=> /ble/notify/c7:f9:36:dd:b0:ca/nus/nus_rx
+"\x10E.getTemperature()\n" => /ble/write/c7:f9:36:dd:b0:ca/nus/nus_tx
 ```
 
 
