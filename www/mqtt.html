@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <title>EspruinoHub</title>
+    <style>
+      p { margin: 0; };
+    </style>
+  </head>
+  <body>
+    <h1>Live MQTT data</h1>
+    <div id="log"></div>
+    
+    <script src="paho-mqtt.js"></script>
+    <script>
+      function log(msg) {
+        var p = document.createElement("p");
+        p.textContent = msg;
+        var log = document.getElementById("log");
+        while (log.children.length>50) log.children[0].remove();
+        log.append(p);
+        if (p.scrollIntoView) p.scrollIntoView();
+      }
+          
+      // Create a client instance
+      client = new Paho.MQTT.Client(location.hostname, Number(location.port), "clientId");
+
+      // set callback handlers
+      client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+
+      log("MQTT Connecting...");
+      // connect the client
+      client.connect({onSuccess:onConnect});
+
+
+      // called when the client connects
+      function onConnect() {
+        log("MQTT Connected");
+        client.subscribe("#"); // get everything
+      }
+
+      // called when the client loses its connection
+      function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          log("MQTT connection lost:"+responseObject.errorMessage);
+        }
+      }
+
+      // called when a message arrives
+      function onMessageArrived(message) {
+        log(""+message.destinationName+"  ->  "+JSON.stringify(message.payloadString));
+      }
+    </script>
+  </body>
+</html>

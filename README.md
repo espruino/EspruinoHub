@@ -7,7 +7,7 @@ A BLE -> MQTT bridge for Raspberry Pi and other Embedded devices
 Setting up
 ----------
 
-Assuming a blank Pi:
+Assuming a blank Raspberry Pi:
 
 ```
 # Install a modern version of nodejs and nodered
@@ -15,7 +15,6 @@ sudo apt-get install build-essential python-rpi.gpio
 bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
 # Get dependencies
 sudo apt-get install mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
-
 # Auto start Node-RED
 sudo systemctl enable nodered.service
 # Start nodered manually this one time (this creates ~/.node-red)
@@ -28,20 +27,46 @@ git clone https://github.com/espruino/EspruinoHub
 # Install its' requirements
 cd EspruinoHub
 npm install
-
+# Optional: Install espruino-web-ide to allow the IDE to be used from the server
+npm install espruino-web-ide
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
 
 **Note:** On non-Raspberry Pi devices, Mosquitto (the MQTT server) may default to not allowing anonymous (un-authenticated) connections to MQTT. To fix this edit `/etc/mosquitto/conf.d/local.conf` and set `allow_anonymous` to `true`.
 
+**Note:** The instructions above assume you want to use Node-RED. If you don't
+then you can skip the Node-RED related parts.
 
 Usage
 -----
 
 Run with `start.sh` (ideally you'd set this to auto-start - see below)
 
-You can then access Node-RED using `http://localhost:1880`
+You then have a few options...
+
+### Status / Websocket MQTT / Espruino Web IDE
+
+By default EspruinoHub starts a web server at http://localhost:1888 that serves
+the contents of the `www` folder. **You can disable this by setting `http_port`
+to 0 in `config.json`**.
+
+With that server, you can:
+
+* See the Intro page
+* See the status and log messages at http://localhost:1888/status
+* Access the Espruino Web IDE at http://localhost:1888/ide if you install the 
+`espruino-web-ide` NPM package (see the 'Setting up' instructions above). You
+can then connect to any Bluetooth LE device within range of EspruinoHub.
+* View real-time MQTT data via WebSockets at http://localhost:1888/mqtt.html
+* View any of your own pages that are written into the `www` folder. For instance
+you could use [TinyDash](https://github.com/espruino/TinyDash) with the code
+from `www/mqtt.html` to display the latest BLE data that you have received.
+
+
+### Node-RED / MQTT
+
+You can access Node-RED using `http://localhost:1880`
 
 Once you add UI elements and click `Deploy` they'll be visible at `http://localhost:1880/ui`
 

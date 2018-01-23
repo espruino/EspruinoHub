@@ -12,6 +12,10 @@
     }
   },
 
+  "// Make this nonzero to enable the HTTP server on the given port.":0,
+  "// See README.md for more info on what it does":0,
+  "http_port" : 1888,
+
   "// Set this to enable the HTTP proxy - it's off by default for safety":0,
   "// since it would be possible to spoof MAC addresses and use your":0,
   "// connection":0,
