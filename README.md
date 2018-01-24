@@ -7,7 +7,19 @@ A BLE -> MQTT bridge for Raspberry Pi and other Embedded devices
 Setting up
 ----------
 
-Assuming a blank Raspberry Pi:
+### Get Raspbian running on your Raspberry Pi
+
+* Download Raspbian Lite from https://www.raspberrypi.org/downloads/raspbian/
+* Copy it to an SD card with `sudo dd if=2017-11-29-raspbian-stretch-lite.img of=/dev/sdc status=progress bs=1M` on Linux (or see the instructions on the Raspbian download page above for your platform)
+* Unplug and re-plug the SD card and add a file called `ssh` to the `boot` drive - this will enable SSH access to the Pi 
+* If you're using WiFi rather than Ethernet, see [this post on setting up WiFi via the SD card](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi)
+* Now put the SD card in the Pi, apply power, and wait a minute
+* `ssh pi@raspberrypi.local` (or use PuTTY on Windows) and use the password `raspberry`
+* Run `sudo raspi-config` and set the Pi up as you want (eg. hostname, password)
+
+### Installation of everything (EspruinoHub, Node-RED, Web IDE)
+
+These instructions install up to date Node.js and Node-RED - however it can take a while! If you just want EspruinoHub and the IDE, see the next item.
 
 ```
 # Install a modern version of nodejs and nodered
@@ -21,30 +33,96 @@ sudo systemctl enable nodered.service
 sudo systemctl start nodered.service
 # Install the Node-RED UI
 cd ~/.node-red && npm install node-red-contrib-ui
-# Now get this repository
+# Now get EspruinoHub
 cd ~/
 git clone https://github.com/espruino/EspruinoHub
-# Install its' requirements
+# Install EspruinoHub's required Node libraries
 cd EspruinoHub
 npm install
-# Optional: Install espruino-web-ide to allow the IDE to be used from the server
+# Optional: Install the Espruino Web IDE to allow the IDE to be used from the server
 git clone https://github.com/espruino/EspruinoWebIDE
+(cd EspruinoWebIDE && git clone https://github.com/espruino/EspruinoTools)
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
 
-**Note:** On non-Raspberry Pi devices, Mosquitto (the MQTT server) may default to not allowing anonymous (un-authenticated) connections to MQTT. To fix this edit `/etc/mosquitto/conf.d/local.conf` and set `allow_anonymous` to `true`.
+You can now type `./start.sh` to run EspruinoHub, but it's worth checking out the `Auto Start` section to see how to get it to run at boot.
 
-**Note:** The instructions above assume you want to use Node-RED. If you don't
-then you can skip the Node-RED related parts.
+### Installation of EspruinoHub and Web IDE
+
+```
+# Install Node, Bluetooth, etc
+sudo apt-get update
+sudo apt-get install git-core nodejs nodejs-legacy npm build-essential mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
+# Now get EspruinoHub
+git clone https://github.com/espruino/EspruinoHub
+# Install EspruinoHub's required Node libraries
+cd EspruinoHub
+npm install
+# Optional: Install the Espruino Web IDE to allow the IDE to be used from the server
+git clone https://github.com/espruino/EspruinoWebIDE
+(cd EspruinoWebIDE && git clone https://github.com/espruino/EspruinoTools)
+# Give Node.js access to Bluetooth
+sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
+```
+
+You can now type `./start.sh` to run EspruinoHub, but it's worth checking out the `Auto Start` section to see how to get it to run at boot.
+
+### Auto Start
+
+There are a 2 main ways to run EspruinoHub on the Raspberry Pi.
+
+#### Headless Startup
+
+This is the normal way of running services - to configure them as a system start-up job using `systemd`:**
+
+```
+    sudo cp systemd-EspruinoHub.service /etc/systemd/system/EspruinoHub.service
+```
+
+and edit it as necessary to match your installation directory and user configuration.  Then, to start it for testing:
+
+```
+    sudo systemctl start EspruinoHub.service && sudo journalctl -f -u EspruinoHub
+```
+
+If it works, Ctrl-C to break out and enable it to start on login:
+
+```
+    sudo systemctl enable EspruinoHub.service
+```
+
+
+#### Console Startup
+
+If you have a video output on your Pi then you can run EspruinoHub at boot - on the main display - so that you can see what it's reporting.
+
+* Edit `.bashrc` and add the following right at the bottom:
+
+```
+if [ $(tty) == /dev/tty1 ]; then
+  while true; do
+    EspruinoHub/start.sh
+    sleep 1s
+  done
+fi
+```
+
+* Now run `sudo raspi-config`, choose `Boot Options`, `Desktop / CLI`, and `Console Autologin`
+
+* Next time you reboot, the console will automatically run `EspruinoHub`
+
+### Notes
+
+* On non-Raspberry Pi devices, Mosquitto (the MQTT server) may default to not allowing anonymous (un-authenticated) connections to MQTT. To fix this edit `/etc/mosquitto/conf.d/local.conf` and set `allow_anonymous` to `true`.
+* By default the HTTP server in EspruinoHub is enabled, however it can be disabled by setting `http_port` to `0` in `config.json`
+* The HTTP Proxy service is disabled by default and needs some configuration - see **HTTP Proxy** below
 
 
 Usage
 -----
 
-Run with `start.sh` (ideally you'd set this to auto-start - see below)
-
-You then have a few options...
+Once started, you then have a few options...
 
 ### Status / Websocket MQTT / Espruino Web IDE
 
@@ -105,46 +183,9 @@ on a Puck.js BLE UART connection with:
 "\x10E.getTemperature()\n" => /ble/write/c7:f9:36:dd:b0:ca/nus/nus_tx
 ```
 
+### MQTT Command-line
 
-Auto Start
-----------
-
-There are a few ways to get services running all the time on a Raspberry Pi, but
-as it's got a video output it's nice to be able to use that as a status display.
-
-To do this:
-
-* Edit `.bashrc` and add the following right at the bottom:
-
-```
-if [ $(tty) == /dev/tty1 ]; then
-  while true; do
-    EspruinoHub/start.sh
-    sleep 1s
-  done
-fi
-```
-
-* Now run `sudo raspi-config`, choose `Boot Options`, `Desktop / CLI`, and `Console Autologin`
-
-* Next time you reboot, the console will automatically run `EspruinoHub`
-
-Alternatively, you can configure it as a system start-up job using `systemd`:
-```
-    sudo cp systemd-EspruinoHub.service /etc/systemd/system/EspruinoHub.service
-```
-and edit it as necessary to match your installation directory and user configuration.  Then, to start it for testing:
-```
-    sudo systemctl start EspruinoHub.service && sudo journalctl -f -u EspruinoHub
-```
-If it works, enable it to start on login:
-```
-    sudo systemctl enable EspruinoHub.service
-```
-
-
-Testing MQTT
-------------
+These commands use the Mosquitto command-line tools:
 
 ```
 # listen to all, verbose
@@ -154,11 +195,16 @@ mosquitto_sub -h localhost -t /# -v
 mosquitto_pub -h localhost -t test/topic -m "Hello world"
 ```
 
+You can use the commands in the section above to make things happen from the command-line.
 
-Note
-----
+HTTP Proxy
+----------
 
-To allow Bluetooth to advertise services (for the HTTP proxy) you need:
+EspruinoHub implements the [Bluetooth HTTP Proxy service](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.http_proxy.xml)
+
+The HTTP Proxy is disabled by default as it can give any Bluetooth LE device in range access to your network. To fix this, edit the `http_proxy` and `http_whitelist` entries in `config.json` to enable the proxy and whitelist devices based on address (which you can find from EspruinoHub's status of MQTT advertising packets).
+
+To allow Bluetooth to advertise services (for the HTTP proxy) you also need:
 
 ```
 # Stop the bluetooth service
@@ -183,6 +229,4 @@ you have specified beforehand are allowed to connect.
 TODO
 ----
 
-* Keep connection open in `connect.js` for 30 secs after first write
-* Re-use the connection for queued requests
-* Handle over-size writes
+* Handle over-size reads and writes for HTTP Proxy
