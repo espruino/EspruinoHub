@@ -1,11 +1,12 @@
 EspruinoHub
 ===========
 
-A BLE -> MQTT bridge for Raspberry Pi and other Embedded devices
-
+A BLE -> MQTT bridge for Raspberry Pi and other Embedded devices for [Espruino](http://www.espruino.com/) and [Puck.js](http://www.puck-js.com/)
 
 Setting up
 ----------
+
+Ideally use a Raspberry Pi 3 or Zero W, as these have Bluetooth LE on them already. However the BLE USB dongles [mentioned in the Puck.js Quick Start guide](http://www.espruino.com/Puck.js+Quick+Start#requirements) should work.
 
 ### Get Raspbian running on your Raspberry Pi
 
