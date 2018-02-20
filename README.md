@@ -172,7 +172,8 @@ You can also connect to a device:
 
 * `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` connects and writes to the charactertistic
 * `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic
-* `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic
+* `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic, which 
+send data back on `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
 * `/ble/ping/DEVICE` connects, or maintains a connection to the device, and sends `/ble/pong/DEVICE` on success
 
 After connecting, EspruinoHub will stay connected for a few seconds unless there is
@@ -182,6 +183,8 @@ on a Puck.js BLE UART connection with:
 ```
 => /ble/notify/c7:f9:36:dd:b0:ca/nus/nus_rx
 "\x10E.getTemperature()\n" => /ble/write/c7:f9:36:dd:b0:ca/nus/nus_tx
+
+/ble/data/c7:f9:36:dd:b0:ca/nus/nus_rx => "23\r\n"
 ```
 
 ### MQTT Command-line
