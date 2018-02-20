@@ -16,7 +16,7 @@
     "espruino"
   ],
   "author": "Gordon Williams (gw@pur3.co.uk)",
-  "license": "MPLv2",
+  "license": "MPL-2.0",
   "dependencies": {
     "bleno": "^0.4.1",
     "mqtt": "^2.0.1",
