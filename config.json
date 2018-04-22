@@ -5,6 +5,10 @@
     "fc:a6:c6:04:db:79" : "hall_down",
     "cf:71:de:4d:f8:48" : "hall_up"
   },
+  "// How many seconds to wait for a packet before considering BLE connection broken and exiting":0,
+  "// Higher values are useful with slowly advertising sensors":0,
+  "ble_timeout": 10,
+
   "// We can add our own custom advertising UUIDs here with names to help decode them":0, 
   "advertised_services" : {
     "ffff" : {
