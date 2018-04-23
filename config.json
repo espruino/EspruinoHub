@@ -5,6 +5,9 @@
     "fc:a6:c6:04:db:79" : "hall_down",
     "cf:71:de:4d:f8:48" : "hall_up"
   },
+  "// Set this to true to only publish MQTT messages for known devices":0,
+  "only_known_devices": false,
+
   "// We can add our own custom advertising UUIDs here with names to help decode them":0, 
   "advertised_services" : {
     "ffff" : {
