@@ -5,8 +5,14 @@
     "fc:a6:c6:04:db:79" : "hall_down",
     "cf:71:de:4d:f8:48" : "hall_up"
   },
+
   "// Set this to true to only publish MQTT messages for known devices":0,
   "only_known_devices": false,
+
+  "// How many seconds to wait for a packet before considering BLE connection":0,
+  "// broken and exiting. Higher values are useful with slowly advertising sensors.":0,
+  "// Setting a value of 0 disables the exit/restart.":0,
+  "ble_timeout": 20,
 
   "// We can add our own custom advertising UUIDs here with names to help decode them":0, 
   "advertised_services" : {
