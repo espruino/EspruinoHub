@@ -164,6 +164,7 @@ Useful MQTT advertising parts are:
 * `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data. `temp` is the obvious one
 
 To decode the hex-encoded manufacturer-specific data, try:
+
 ```
 var data = Buffer.from(msg.payload.manufacturerData, 'hex');
 ```
@@ -176,6 +177,9 @@ You can also connect to a device:
 send data back on `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
 * `/ble/ping/DEVICE` connects, or maintains a connection to the device, and sends `/ble/pong/DEVICE` on success
 
+`SERVICE` and `CHARACTERISTIC` are either known names from [attributes.js](https://github.com/espruino/EspruinoHub/blob/master/lib/attributes.js) 
+such as `nus` and `nus_tx` or are of the form `6e400001b5a3f393e0a9e50e24dcca9e` for 128 bit uuids or `abcd` for 16 bit UUIDs.
+
 After connecting, EspruinoHub will stay connected for a few seconds unless there is
 any activity (eg a `write` or `ping`). So you can for instance evaluate something
 on a Puck.js BLE UART connection with:
@@ -186,6 +190,7 @@ on a Puck.js BLE UART connection with:
 
 /ble/data/c7:f9:36:dd:b0:ca/nus/nus_rx => "23\r\n"
 ```
+
 
 ### MQTT Command-line
 
