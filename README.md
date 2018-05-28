@@ -160,7 +160,7 @@ Useful MQTT advertising parts are:
 * `/ble/advertise/DEVICE` - JSON for device's broadcast name, rssi and manufacturer-specific data
 * `/ble/advertise/DEVICE/manufacturer/COMPANY` - Manufacturer-specific data (without leading company code)
 * `/ble/advertise/DEVICE/rssi` - Device signal strength
-* `/ble/advertise/DEVICE/SERVICE` - Raw service data (as JSON)
+* `/ble/advertise/DEVICE/SERVICE` - Raw service data (as a JSON Array of bytes)
 * `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data. `temp` is the obvious one
 
 To decode the hex-encoded manufacturer-specific data, try:
