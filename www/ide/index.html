@@ -1,0 +1,173 @@
+<html>
+<head>
+  <title>EspruinoHub IDE</title>
+</head>
+<body style="margin:0px;">
+<iframe id="ideframe" src="https://www.espruino.com/ide" style="width:100%;height:100%;border:0px;">
+Loading IDE...</iframe>
+<script src="../paho-mqtt.js"></script>
+<script src="https://www.espruino.com/ide/embed.js"></script>
+<script>var  Espruino = { Core : {} };</script>
+<script src="https://www.espruino.com/ide/EspruinoTools/core/utils.js"></script>
+<script>
+  // Websocket connection stuff
+  var foundDevices = [];
+  var deviceAddress;
+  var websocket;
+  var pingInterval;
+  var onPong;
+  // IDE IFrame
+  var IDE = EspruinoIDE(document.getElementById('ideframe'));
+  IDE.onready = function(data) {
+    // Try and connect to websocket server right away - it makes the connection window snappier
+    websocketConnect();
+    // Check for old devices and remove them from the list
+    setInterval(function() {
+      for (var i=0;i<foundDevices.length;i++) {
+        if (foundDevices[i].path == deviceAddress)
+          continue; // we're connected
+        if (++foundDevices[i].age > 5) {
+          foundDevices.splice(i,1);
+          i--;
+        }
+      }
+    }, 2000);
+  };
+  // return a list of available ports - probably just one
+  IDE.onports = function() {
+    if (websocket==undefined)
+      websocketConnect();
+    return foundDevices;
+  };
+  // return a list of available ports - probably just one
+  IDE.onconnect = function(path, callback) {
+    if (!websocket) {
+      console.log("Websockets> Not Connected");
+      callback();
+    }
+    deviceAddress = path;
+
+    // When we get a pong, say that we're connected
+    onPong = function() {
+      if (connectionTimeout) {
+        clearTimeout(connectionTimeout);
+        connectionTimeout = undefined;
+      }
+      callback({ all : "ok" });
+      onPong = undefined;
+    };
+    // 10 second connection timeout
+    var connectionTimeout = setTimeout(function() {
+      connectionTimeout = undefined;
+      console.log("Websockets> Connection timeout");
+      closeSerial();
+    }, 10000);
+    // Subscribe to data
+    websocket.subscribe("/ble/data/"+deviceAddress+"/nus/nus_rx");
+    websocket.subscribe("/ble/pong/"+deviceAddress);
+    // request notifications of serial RX
+    sendMessage("/ble/notify/"+deviceAddress+"/nus/nus_rx","");
+    // send a ping so when we get a pong we know we're connected
+    sendMessage("/ble/ping/"+deviceAddress+"", "");
+    // keep pinging so the connection doesn't close
+    pingInterval = setInterval(function() {
+      sendMessage("/ble/ping/"+deviceAddress+"", "");
+    }, 3000);
+  };
+  IDE.onwrite = function(data) {
+    if (!deviceAddress) return;
+    sendMessage("/ble/write/"+deviceAddress+"/nus/nus_tx", data);
+    setTimeout(callback, 100); // force a delay when sending data
+  };
+  IDE.ondisconnect = function(data) {
+    alert("User requested disconnect from IDE");
+  };
+
+  function websocketConnect() {
+    // for now, always connect to where we were served from
+    var serverName = location.hostname;
+    var serverPort = parseInt(location.port);
+
+    console.log("Websockets> Connecting to "+serverName+":"+serverPort);
+    websocket = new Paho.MQTT.Client(serverName, serverPort, "espruino");
+    websocket.onConnectionLost = function (responseObject) {
+      websocket = undefined;
+      console.log("Websockets> Connection Lost:"+responseObject.errorMessage);
+      closeSerial();
+    };
+    // called when a message arrives
+    websocket.onMessageArrived = function(message) {
+      if (deviceAddress && message.destinationName == "/ble/data/"+deviceAddress+"/nus/nus_rx") {
+        // Receive data from device
+        IDE.received(message.payloadString);
+      } else if (deviceAddress && message.destinationName == "/ble/pong/"+deviceAddress) {
+        // When we get a 'pong' back, call this - so we know we're connected
+        if (onPong) onPong();
+        onPong = undefined;
+      } else if (message.destinationName.substr(0,15)=="/ble/advertise/") {
+        // advertising for new devices
+        var address = message.destinationName.substr(15);
+        try {
+          var j = JSON.parse(message.payloadString);
+          var isEspruino = false;
+          // is the name one we know?
+          if (j.name && Espruino.Core.Utils.isRecognisedBluetoothDevice(j.name))
+            isEspruino = true;
+          // is it advertising a UART service?
+          if (j.serviceUuids && j.serviceUuids.indexOf("6e400001b5a3f393e0a9e50e24dcca9e")>=0)
+            isEspruino = true;
+          // If we think it is an Espruino, add it to the drop-down
+          if (isEspruino) {
+            var dev = foundDevices.find(dev => dev.path==address);
+            if (!dev) {
+              dev = {
+                age : 0,
+                description : j.name,
+                path : address,
+                type : "bluetooth",
+              };
+              foundDevices.push(dev);
+              console.log("Websockets> found new device "+JSON.stringify(j.name)+" ("+address+")");
+            } else {
+              dev.age = 0;
+            }
+          }
+        } catch (e) {
+          console.log("Websockets> Malformed JSON from "+message.destinationName);
+        }
+      } else {
+        console.log("Websockets> onMessageArrived:"+message.destinationName+" "+message.payloadString);
+      }
+    };
+    websocket.connect({onSuccess:function() {
+      console.log("Websockets> Connected");
+      // Subscribe to advertising data
+      websocket.subscribe("/ble/advertise/+");
+    }});
+  }
+
+  function sendMessage(topic, msg) {
+    if (!websocket) {
+      console.log("sendMessage when not connected");
+      return;
+    }
+    var message = new Paho.MQTT.Message(JSON.stringify(msg));
+    message.destinationName = topic;
+    websocket.send(message);
+  }
+
+  function closeSerial() {
+    if (pingInterval) {
+      clearInterval(pingInterval);
+      pingInterval = undefined;
+    }
+    if (websocket && deviceAddress) {
+      websocket.unsubscribe("/ble/data/"+deviceAddress+"/nus/nus_rx");
+      websocket.unsubscribe("/ble/pong/"+deviceAddress);
+    }
+    deviceAddress = undefined;
+    IDE.disconnect();
+  };
+</script>
+</body>
+</html>

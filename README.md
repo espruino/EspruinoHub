@@ -60,9 +60,6 @@ git clone https://github.com/espruino/EspruinoHub
 # Install EspruinoHub's required Node libraries
 cd EspruinoHub
 npm install
-# Optional: Install the Espruino Web IDE to allow the IDE to be used from the server
-git clone https://github.com/espruino/EspruinoWebIDE
-(cd EspruinoWebIDE && git clone https://github.com/espruino/EspruinoTools)
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
