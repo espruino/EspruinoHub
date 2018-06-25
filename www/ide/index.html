@@ -74,13 +74,13 @@ Loading IDE...</iframe>
       sendMessage("/ble/ping/"+deviceAddress+"", "");
     }, 3000);
   };
-  IDE.onwrite = function(data) {
+  IDE.onwritecb = function(data, callback) {
     if (!deviceAddress) return;
     sendMessage("/ble/write/"+deviceAddress+"/nus/nus_tx", data);
     setTimeout(callback, 100); // force a delay when sending data
   };
   IDE.ondisconnect = function(data) {
-    alert("User requested disconnect from IDE");
+    closeSerial();    
   };
 
   function websocketConnect() {
