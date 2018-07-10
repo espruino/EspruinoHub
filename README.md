@@ -12,7 +12,7 @@ Ideally use a Raspberry Pi 3 or Zero W, as these have Bluetooth LE on them alrea
 
 * Download Raspbian Lite from https://www.raspberrypi.org/downloads/raspbian/
 * Copy it to an SD card with `sudo dd if=2017-11-29-raspbian-stretch-lite.img of=/dev/sdc status=progress bs=1M` on Linux (or see the instructions on the Raspbian download page above for your platform)
-* Unplug and re-plug the SD card and add a file called `ssh` to the `boot` drive - this will enable SSH access to the Pi 
+* Unplug and re-plug the SD card and add a file called `ssh` to the `boot` drive - this will enable SSH access to the Pi
 * If you're using WiFi rather than Ethernet, see [this post on setting up WiFi via the SD card](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi)
 * Now put the SD card in the Pi, apply power, and wait a minute
 * `ssh pi@raspberrypi.local` (or use PuTTY on Windows) and use the password `raspberry`
@@ -40,9 +40,8 @@ git clone https://github.com/espruino/EspruinoHub
 # Install EspruinoHub's required Node libraries
 cd EspruinoHub
 npm install
-# Optional: Install the Espruino Web IDE to allow the IDE to be used from the server
-git clone https://github.com/espruino/EspruinoWebIDE
-(cd EspruinoWebIDE && git clone https://github.com/espruino/EspruinoTools)
+# Optional - enable gathering of historical data by creating a 'log' directory
+mkdir log
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
@@ -60,6 +59,8 @@ git clone https://github.com/espruino/EspruinoHub
 # Install EspruinoHub's required Node libraries
 cd EspruinoHub
 npm install
+# Optional - enable gathering of historical data by creating a 'log' directory
+mkdir log
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
@@ -115,6 +116,7 @@ fi
 * On non-Raspberry Pi devices, Mosquitto (the MQTT server) may default to not allowing anonymous (un-authenticated) connections to MQTT. To fix this edit `/etc/mosquitto/conf.d/local.conf` and set `allow_anonymous` to `true`.
 * By default the HTTP server in EspruinoHub is enabled, however it can be disabled by setting `http_port` to `0` in `config.json`
 * The HTTP Proxy service is disabled by default and needs some configuration - see **HTTP Proxy** below
+* You used to need a local copy of the Espruino Web IDE, however now EspruinoHub just serves up an IFRAME which points to the online IDE, ensuring it is always up to date.
 
 
 Usage
@@ -132,9 +134,9 @@ With that server, you can:
 
 * See the Intro page
 * See the status and log messages at http://localhost:1888/status
-* Access the Espruino Web IDE at http://localhost:1888/ide if you install the 
-`espruino-web-ide` NPM package (see the 'Setting up' instructions above). You
+* Access the Espruino Web IDE at http://localhost:1888/ide. You
 can then connect to any Bluetooth LE device within range of EspruinoHub.
+* View real-time Signal Strength data via WebSockets at http://localhost:1888/rssi.html
 * View real-time MQTT data via WebSockets at http://localhost:1888/mqtt.html
 * View any of your own pages that are written into the `www` folder. For instance
 you could use [TinyDash](https://github.com/espruino/TinyDash) with the code
@@ -170,11 +172,11 @@ You can also connect to a device:
 
 * `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` connects and writes to the charactertistic
 * `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic
-* `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic, which 
+* `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic, which
 send data back on `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
 * `/ble/ping/DEVICE` connects, or maintains a connection to the device, and sends `/ble/pong/DEVICE` on success
 
-`SERVICE` and `CHARACTERISTIC` are either known names from [attributes.js](https://github.com/espruino/EspruinoHub/blob/master/lib/attributes.js) 
+`SERVICE` and `CHARACTERISTIC` are either known names from [attributes.js](https://github.com/espruino/EspruinoHub/blob/master/lib/attributes.js)
 such as `nus` and `nus_tx` or are of the form `6e400001b5a3f393e0a9e50e24dcca9e` for 128 bit uuids or `abcd` for 16 bit UUIDs.
 
 After connecting, EspruinoHub will stay connected for a few seconds unless there is
@@ -188,6 +190,8 @@ on a Puck.js BLE UART connection with:
 /ble/data/c7:f9:36:dd:b0:ca/nus/nus_rx => "23\r\n"
 ```
 
+**You can also gather historical data over MQTT - see the `History` section
+below.**
 
 ### MQTT Command-line
 
@@ -202,6 +206,82 @@ mosquitto_pub -h localhost -t test/topic -m "Hello world"
 ```
 
 You can use the commands in the section above to make things happen from the command-line.
+
+History
+-------
+
+EspruinoHub contains code (`libs/history.js`) that subscribes to any MQTT data
+beginning with `/ble/` and that then stores logs of the average value
+every minute, 10 minutes, hour and day (see `config.js:history_times`). The
+averages are broadcast over MQTT as the occur, but can also be queried by sending
+messages to `/hist/request`.
+
+For example, an Espruino device with address `f5:47:c8:0b:49:04` may broadcast
+advertising data with UUID `1809` (Temperature) with the following code:
+
+```
+setInterval(function() {
+  NRF.setAdvertising({
+    0x1809 : [Math.round(E.getTemperature())]
+  });
+}, 30000);
+```
+
+This is decoded into `temp` by `attributes.js`, and it sends the following MQTT
+packets:
+
+```
+/ble/advertise/f5:47:c8:0b:49:04 {"rssi":-53,"name":"...","serviceUuids":["6e400001b5a3f393e0a9e50e24dcca9e"]}
+/ble/advertise/f5:47:c8:0b:49:04/rssi -53
+/ble/advertise/f5:47:c8:0b:49:04/1809 [22]
+/ble/advertise/f5:47:c8:0b:49:04/temp 22
+/ble/temp/f5:47:c8:0b:49:04 22
+```
+
+You can now subscribe with MQTT to `/hist/hour/ble/temp/f5:47:c8:0b:49:04` and
+every hour you will receive a packet containing the average temperature over
+that time.
+
+However, you can also request historical data by sending the JSON:
+
+```
+{
+  "topic" : "/hist/hour/ble/temp/f5:47:c8:0b:49:04",
+  "interval" : "minute",
+  "age" : 6  
+}
+```
+
+to `/hist/request/a_unique_id`. EspruinoHub will then send a packet to
+`/hist/response/a_unique_id` containing:
+
+```
+{
+  "interval":"minute",
+  "from":1531227216903, // unix timestamp (msecs since 1970)
+  "to":1531234416903,   // unix timestamp (msecs since 1970)
+  "topic":"/hist/hour/ble/temp/f5:47:c8:0b:49:04",
+  "times":[ array of unix timestamps ],
+  "data":[ array of average data values ]
+}
+```
+
+Requests can be of the form:
+
+```
+{
+  topic : "/ble/advertise/...",
+  "interval" : "minute" / "tenminutes" / "hour" / "day"
+  // Then time period is either:
+  "age" : 1, // hours
+  // or:
+  "from" : "1 July 2018",
+  "to" : "5 July 2018"     (or anything that works in new Date(...))  
+}
+```
+
+For a full example of usage see `www/rssi.html`.
+
 
 HTTP Proxy
 ----------

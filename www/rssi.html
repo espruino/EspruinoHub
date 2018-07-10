@@ -1,0 +1,107 @@
+<html>
+  <!-- This example shows the Signal Strengths of all devices in range,
+   including historical data -->
+  <head>
+    <meta name="viewport" content="width=640, initial-scale=1">
+    <title>EspruinoHub RSSI</title>
+    <style>
+      p { margin: 0; };
+    </style>
+  </head>
+  <body>
+    <link href="tinydash.css" rel="stylesheet">
+    <script src="tinydash.js"></script>
+    <script src="paho-mqtt.js"></script>
+    <script>
+      var o = {
+        l:TD.label({x:10,y:10,width:200,height:60,label:"RSSI Graph"}),
+        deviceCount:TD.gauge({x:10,y:80,width:200,height:200,label:"Devices",value:0,min:0,max:40,name:"gauge"}),
+        log:TD.log({x:220,y:10,width:400,height:200,label:"Connection Log",text:""}),
+        gr:TD.graph({x:220,y:220,width:400,height:170,label:"Signal Strengths",data:[]})
+      };
+      for (var i in o) document.body.appendChild(o[i]);
+      function log(msg) {
+        o.log.log(msg);
+      }
+      // ----
+      var devices = {}
+      // ----
+      client = new Paho.MQTT.Client(location.hostname, Number(location.port), "clientId");
+      client.onConnectionLost = function(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          log("MQTT connection lost:"+responseObject.errorMessage);
+        }
+      };
+      client.onMessageArrived = function(message) {
+        //log(""+message.destinationName+"  ->  "+JSON.stringify(message.payloadString));
+        var topic = message.destinationName.split("/");
+        // New device found!
+        if (message.destinationName.startsWith("/ble/advertise/")) {
+          var d = topic[3];
+          if (!(d in devices)) {
+            // Add to array
+            log("New device "+d);
+            devices[d] = { addr : d, time : Date.now(), rssi : [] };
+            o.deviceCount.setValue(Object.keys(devices).length);
+            // request history data
+            client.publish("/hist/request/"+d, JSON.stringify({
+              interval : "minute",
+              age : 2, // hours
+              topic : "/ble/advertise/"+d+"/rssi"
+            }));
+            // update graph
+            updateGraph();
+          }
+          devices[d].time = Date.now();
+        }
+        // Response to history request
+        if (message.destinationName.startsWith("/hist/response/")) {
+          var dev = topic[3];
+          log("Got history "+dev);
+          var d = JSON.parse(message.payloadString);
+          if (dev in devices) {
+            devices[dev].rssi = [];
+            d.data.forEach(function(data,idx) {
+              devices[dev].rssi[parseInt(d.times[idx])] = parseFloat(data);
+            });
+            updateGraph();
+          }
+        }
+        // One minute's worth of data received
+        if (message.destinationName.startsWith("/hist/minute/ble/advertise/")) {
+          var dev = topic[5];
+          if (dev in devices)
+            devices[dev].rssi.push(parseFloat(message.payloadString));
+          data.push();
+          o.gr.draw();
+        }
+      };
+      // Connect to MQTT
+      log("MQTT Connecting...");
+      client.connect({onSuccess: function(){
+        log("MQTT Connected");
+        client.subscribe("#"); // get everything
+      }});
+      // If anything is > 1 minute old, remove it
+      setInterval(function() {
+        var n = Date.now()-60000;
+        Object.keys(devices).forEach(function(d) {
+          if (devices[d].time<n) {
+            log("Lost device "+d);
+            delete devices[d];
+            o.deviceCount.setValue(Object.keys(devices).length);
+            updateGraph();
+          }
+        });
+      }, 5000);
+
+      function updateGraph() {
+        var data = [];
+        Object.keys(devices).forEach(function(dev) {
+          data.push(devices[dev].rssi);
+        });
+        o.gr.setData(data);
+      }
+    </script>
+  </body>
+</html>

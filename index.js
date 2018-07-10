@@ -18,3 +18,4 @@ require("./lib/config.js").init(); // Load configuration
 require("./lib/service.js").init(); // Enable HTTP Proxy Service
 require("./lib/discovery.js").init(); // Enable Advertising packet discovery
 require("./lib/http.js").init(); // Enable HTTP server for status
+require("./lib/history.js").init(); // Enable History/Logging

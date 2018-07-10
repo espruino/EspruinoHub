@@ -1,0 +1,145 @@
+/* Copyright (c) 2017, Gordon Williams, MPLv2 License. https://github.com/espruino/TinyDash */
+body {
+  background-color: #000;
+}
+.td {
+  position: absolute;
+  /*border: 2px solid #555;*/
+  color: #fff;
+  font: 12px sans-serif;
+  background-color: #222;
+}
+.td span {
+  color: #888;
+  position: absolute; left: 8px; top: 8px;
+}
+
+.td_scrollable::-webkit-scrollbar-track {
+	background-color: #222;
+}
+
+.td_scrollable::-webkit-scrollbar {
+	width: 12px;
+	background-color: #000;
+}
+
+.td_scrollable::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: #555;
+}
+
+.td_label {
+  display: table;
+  text-align: center;
+}
+.td_label span {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 20px;
+}
+.td_btn {
+}
+.td_btn_a {
+  margin-top: 20px;
+  margin-left: auto; margin-right: auto; /* centered */
+  font-size: 30px;
+  font-weight: bolder;
+  color: #555;
+  border: 2px solid;
+  border-radius: 16px;
+  width: 34px;
+  height: 34px;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.td_btn_a:hover { background-color: #036; }
+.td_btn[pressed="1"] .td_btn_a { color: #09F; }
+.td_btn[pressed="1"] .td_btn_a:hover { background-color: #06B; }
+.td_toggle_a {
+  margin-top: 20px;
+  margin-left: auto; margin-right: auto; /* centered */
+  border: 2px solid #fff;
+  border-radius: 16px;
+  width: 50px;
+  height: 28px;
+}
+.td_toggle_a:hover {
+  background-color: #06B;
+}
+.td_toggle_b {
+  background-color: #fff;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  width: 16px;
+  height: 16px;
+  margin: 4px;
+}
+.td_toggle[pressed="1"] .td_toggle_b {
+  margin-left: 26px;
+}
+.td_val {
+  text-align: center;
+}
+.td_val div {
+  display:inline-block;
+}
+.td_val_a {
+  margin-top: 20px;
+  font-size: 20px;
+  color: #09F;
+}
+.td_val_b {
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 20px;
+  color: #09F;
+  cursor: pointer;
+  user-select: none;
+}
+.td_val_b:hover {
+  color:#fff;
+}
+
+
+.td_gauge {
+  text-align: center;
+}
+.td_gauge canvas {
+  width: 100%;
+  height: 100%;
+}
+.td_gauge_a {
+  position: absolute;
+  left: 0px; right: 0px; top: 50%;
+  font-size: 40px;
+  color: #09F;
+}
+.td_graph {
+  text-align: center;
+}
+.td_graph canvas {
+  width: 100%;
+  height: 100%;
+}
+.td_log_a {
+  position: absolute;
+  top: 24px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  padding: 4px;
+  background-color: #000;
+  overflow: auto;
+}
+.td_modal {
+  background-color: rgba(0,0,0,0.75);
+  border: 2px solid white;
+  cursor: pointer;
+  user-select: none;
+}
+.td_modal span {
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+}
