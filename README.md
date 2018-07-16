@@ -190,6 +190,8 @@ on a Puck.js BLE UART connection with:
 /ble/data/c7:f9:36:dd:b0:ca/nus/nus_rx => "23\r\n"
 ```
 
+Once a `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` has been executed, a `/ble/written/DEVICE/SERVICE/CHARACTERISTIC` packet will be sent in response.
+
 **You can also gather historical data over MQTT - see the `History` section
 below.**
 

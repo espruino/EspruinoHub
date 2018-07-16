@@ -16,6 +16,7 @@ Loading IDE...</iframe>
   var websocket;
   var pingInterval;
   var onPong;
+  var onDataWritten;
   // IDE IFrame
   var IDE = EspruinoIDE(document.getElementById('ideframe'));
   IDE.onready = function(data) {
@@ -65,6 +66,7 @@ Loading IDE...</iframe>
     // Subscribe to data
     websocket.subscribe("/ble/data/"+deviceAddress+"/nus/nus_rx");
     websocket.subscribe("/ble/pong/"+deviceAddress);
+    websocket.subscribe("/ble/written/"+deviceAddress+"/nus/nus_tx");
     // request notifications of serial RX
     sendMessage("/ble/notify/"+deviceAddress+"/nus/nus_rx","");
     // send a ping so when we get a pong we know we're connected
@@ -76,8 +78,8 @@ Loading IDE...</iframe>
   };
   IDE.onwritecb = function(data, callback) {
     if (!deviceAddress) return;
+    onDataWritten = callback;    
     sendMessage("/ble/write/"+deviceAddress+"/nus/nus_tx", data);
-    setTimeout(callback, 100); // force a delay when sending data
   };
   IDE.ondisconnect = function(data) {
     closeSerial();    
@@ -104,6 +106,9 @@ Loading IDE...</iframe>
         // When we get a 'pong' back, call this - so we know we're connected
         if (onPong) onPong();
         onPong = undefined;
+      } else if (deviceAddress && message.destinationName == "/ble/written/"+deviceAddress+"/nus/nus_tx") {
+        if (onDataWritten) onDataWritten();
+        onDataWritten = undefined;
       } else if (message.destinationName.substr(0,15)=="/ble/advertise/") {
         // advertising for new devices
         var address = message.destinationName.substr(15);
