@@ -172,6 +172,7 @@ You can also connect to a device:
 
 * `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` connects and writes to the charactertistic
 * `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic
+* `/ble/read/DEVICE` connects and reads an array of services and charactertistics
 * `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic, which
 send data back on `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
 * `/ble/ping/DEVICE` connects, or maintains a connection to the device, and sends `/ble/pong/DEVICE` on success
