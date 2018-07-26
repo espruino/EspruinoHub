@@ -197,7 +197,7 @@ Data that is received via bluetooth advertising will be relayed over MQTT in the
   * `2a6e` decodes to `temp` (Temperature in C)
   * `2a6f` decodes to `humidity` (Humidity in %)
   * `ffff` decodes to `data` (This is not a standard - however it's useful for debugging or quick tests)
-* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent.
+* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent. (A JSON5 parser is used, so the more compact `{a:5,b:10}` is also valid). 
 
 You can take advantage of Espruino's manufacturer ID `0x0590` to relay JSON over
 Bluetooth LE advertising using the following code on an Espruino board:
@@ -211,11 +211,12 @@ NRF.setAdvertising({},{
 });
 ```
 
-This will create the folling MQTT topics:
+Assuming a device with an address of `ma:c_:_a:dd:re:ss` this will create the
+folling MQTT topics:
 
-* `/ble/advertise/fd:ee:e9:b7:6a:40/espruino` -> `{"a":10,"b":15}`
-* `/ble/advertise/fd:ee:e9:b7:6a:40/a` -> `1`
-* `/ble/advertise/fd:ee:e9:b7:6a:40/b` -> `2`
+* `/ble/advertise/ma:c_:_a:dd:re:ss/espruino` -> `{"a":10,"b":15}`
+* `/ble/advertise/ma:c_:_a:dd:re:ss/a` -> `1`
+* `/ble/advertise/ma:c_:_a:dd:re:ss/b` -> `2`
 
 Note that **you only have 24 characters available for JSON**, so try to use
 the shortest field names possible and avoid floating point values that can
