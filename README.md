@@ -142,33 +142,88 @@ can then connect to any Bluetooth LE device within range of EspruinoHub.
 you could use [TinyDash](https://github.com/espruino/TinyDash) with the code
 from `www/mqtt.html` to display the latest BLE data that you have received.
 
+### MQTT / Node-RED
 
-### Node-RED / MQTT
-
-You can access Node-RED using `http://localhost:1880`
+If set up, you can access Node-RED using `http://localhost:1880`
 
 Once you add UI elements and click `Deploy` they'll be visible at `http://localhost:1880/ui`
 
 The easiest way to get data is to add an MQTT listener node that requests
 `/ble/advertise/#` (`#` is a wildcard). This will output all information received
-via advertising.
+via advertising (see 'Advertising Data' below).
 
-Useful MQTT advertising parts are:
+For more info on available MQTT commands see the 'MQTT Bridge' section below.
+
+Check out http://www.espruino.com/Puck.js+Node-RED for a proper introduction
+on using Node-RED.
+
+### MQTT Command-line
+
+You can use the Mosquitto command-line tools to send and receive MQTT data
+that will make `EspruinoHub` do things:
+
+```
+# listen to all, verbose
+mosquitto_sub -h localhost -t "/#" -v
+
+# listen to any device advertising a 1809 temperature characteristic and
+# output *just* the temperature
+mosquitto_sub -h localhost -t "/ble/advertise/+/temp"
+
+# Test publish
+mosquitto_pub -h localhost -t test/topic -m "Hello world"
+```
+
+For more info on available MQTT commands see the 'MQTT Bridge' section below.
+
+
+MQTT bridge
+-----------
+
+### Advertising
+
+Data that is received via bluetooth advertising will be relayed over MQTT in the following format:
 
 * `/ble/presence/DEVICE` - 1 or 0 depending on whether device has been seen or not
 * `/ble/advertise/DEVICE` - JSON for device's broadcast name, rssi and manufacturer-specific data
-* `/ble/advertise/DEVICE/manufacturer/COMPANY` - Manufacturer-specific data (without leading company code)
+* `/ble/advertise/DEVICE/manufacturer/COMPANY` - Manufacturer-specific data (without leading company code) encoded in base16. To decode use `var data = Buffer.from(msg.payload, 'hex');`
 * `/ble/advertise/DEVICE/rssi` - Device signal strength
 * `/ble/advertise/DEVICE/SERVICE` - Raw service data (as a JSON Array of bytes)
-* `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data. `temp` is the obvious one
+* `/ble/advertise/DEVICE/PRETTY` or `/ble/PRETTY/DEVICE` - Decoded service data based on the decoding in `attributes.js`
+  * `1809` decodes to `temp` (Temperature in C)
+  * `180f` decodes to `battery`
+  * `feaa` decodes to `url` (Eddystone)
+  * `2a6d` decodes to `pressure` (Pressure in pa)
+  * `2a6e` decodes to `temp` (Temperature in C)
+  * `2a6f` decodes to `humidity` (Humidity in %)
+  * `ffff` decodes to `data` (This is not a standard - however it's useful for debugging or quick tests)
+* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent.
 
-To decode the hex-encoded manufacturer-specific data, try:
+You can take advantage of Espruino's manufacturer ID `0x0590` to relay JSON over
+Bluetooth LE advertising using the following code on an Espruino board:
 
 ```
-var data = Buffer.from(msg.payload.manufacturerData, 'hex');
+var data = {a:1,b:2};
+NRF.setAdvertising({},{
+  showName:false,
+  manufacturer:0x0590,
+  manufacturerData:JSON.stringify(data)
+});
 ```
 
-You can also connect to a device:
+This will create the folling MQTT topics:
+
+* `/ble/advertise/fd:ee:e9:b7:6a:40/espruino` -> `{"a":10,"b":15}`
+* `/ble/advertise/fd:ee:e9:b7:6a:40/a` -> `1`
+* `/ble/advertise/fd:ee:e9:b7:6a:40/b` -> `2`
+
+Note that **you only have 24 characters available for JSON**, so try to use
+the shortest field names possible and avoid floating point values that can
+be very long when converted to a String.
+
+### Connections
+
+You can also connect to a device using MQTT packets:
 
 * `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` connects and writes to the charactertistic
 * `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic
@@ -193,25 +248,7 @@ on a Puck.js BLE UART connection with:
 
 Once a `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` has been executed, a `/ble/written/DEVICE/SERVICE/CHARACTERISTIC` packet will be sent in response.
 
-**You can also gather historical data over MQTT - see the `History` section
-below.**
-
-### MQTT Command-line
-
-These commands use the Mosquitto command-line tools:
-
-```
-# listen to all, verbose
-mosquitto_sub -h localhost -t /# -v
-
-# Test publish
-mosquitto_pub -h localhost -t test/topic -m "Hello world"
-```
-
-You can use the commands in the section above to make things happen from the command-line.
-
-History
--------
+### History
 
 EspruinoHub contains code (`libs/history.js`) that subscribes to any MQTT data
 beginning with `/ble/` and that then stores logs of the average value
