@@ -67,8 +67,10 @@ function linkMQTT(id, obj) {
       var age = obj.opts.mqttAge||12;
       var interval = (age<24)?"minute":"tenminutes";
       TD.mqttAddTopicHandler("/hist/minute"+mqttTopic, true, function(topic, payload) {
-        if (obj.opts.data)
+        if (obj.opts.data) {
           obj.opts.data[Date.now()] = parseFloat(payload);
+          obj.draw();
+        }
       });
       TD.mqttAddTopicHandler("/hist/response/"+id, false, function(topic, payload) {
         var id = topic.split("/")[3];
