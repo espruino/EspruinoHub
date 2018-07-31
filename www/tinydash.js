@@ -47,7 +47,8 @@ var TD = {};
     return txt.toFixed(2);
   }
   /// set up position/etc on the html element
-  function setup(opts, el) {
+  function setup(type, opts, el) {
+    el.type = type;
     el.style="width:"+opts.width+"px;height:"+opts.height+"px;left:"+opts.x+"px;top:"+opts.y+"px;";
     el.opts = opts;
     return el;
@@ -69,13 +70,13 @@ var TD = {};
   // --------------------------------------------------------------------------
   /* {label} */
   TD.label = function(opts) {
-    return setup(opts,toElement('<div class="td td_label"><span>'+opts.label+'</span></div>'));
+    return setup("label",opts,toElement('<div class="td td_label"><span>'+opts.label+'</span></div>'));
   };
   /* {label, glyph, value, toggle}*/
   TD.button = function(opts) {
     var pressed = opts.value?1:0;
     opts.glyph = opts.glyph || "&#x1f4a1;";
-    var el = setup(opts,toElement('<div class="td td_btn" pressed="'+pressed+'"><span>'+opts.label+'</span><div class="td_btn_a">'+opts.glyph+'</div></div>'));
+    var el = setup("button",opts,toElement('<div class="td td_btn" pressed="'+pressed+'"><span>'+opts.label+'</span><div class="td_btn_a">'+opts.glyph+'</div></div>'));
     el.getElementsByClassName("td_btn_a")[0].onclick = function() {
       togglePressed(el);
     };
@@ -88,7 +89,7 @@ var TD = {};
   /* {label,value}*/
   TD.toggle = function(opts) {
     var pressed = opts.value?1:0;
-    var el = setup(opts,toElement('<div class="td td_toggle" pressed="'+pressed+'"><span>'+opts.label+'</span><div class="td_toggle_a"><div class="td_toggle_b"/></div></div>'));
+    var el = setup("toggle",opts,toElement('<div class="td td_toggle" pressed="'+pressed+'"><span>'+opts.label+'</span><div class="td_toggle_a"><div class="td_toggle_b"/></div></div>'));
     el.toggle = true;
     el.getElementsByClassName("td_toggle_a")[0].onclick = function() {
       togglePressed(el);
@@ -107,7 +108,7 @@ var TD = {};
     if (opts.step)
       html = '<div class="td_val_b">&#9664;</div><div class="td_val_a"></div><div class="td_val_b">&#9654;</div>';
     else html = '<div class="td_val_a"></div>';
-    var el = setup(opts,toElement('<div class="td td_val"><span>'+opts.label+'</span>'+html+'</div>'));
+    var el = setup("value",opts,toElement('<div class="td td_val"><span>'+opts.label+'</span>'+html+'</div>'));
     el.setValue = function(v) {
       if (opts.min && v<opts.min) v=opts.min;
       if (opts.max && v>opts.max) v=opts.max;
@@ -134,7 +135,7 @@ var TD = {};
     var v = (opts.value===undefined)?0:opts.value;
     var min = (opts.min===undefined)?0:opts.min;
     var max = (opts.max===undefined)?1:opts.max;
-    var el = setup(opts,toElement('<div class="td td_gauge"><span>'+opts.label+'</span><canvas></canvas><div class="td_gauge_a">'+v+'</div></div>'));
+    var el = setup("gauge",opts,toElement('<div class="td td_gauge"><span>'+opts.label+'</span><canvas></canvas><div class="td_gauge_a">'+v+'</div></div>'));
     el.value = v;
     var c = el.getElementsByTagName("canvas")[0];
     var ctx = c.getContext("2d");
@@ -167,9 +168,15 @@ var TD = {};
     };
     return el;
   };
-  /* {label}*/
+  /* {label
+      gridy - optional - grid value for y. Also enables labels on axis
+      ylabel - optional - function(y_value) to format y axis labels, eg: function(y) { return y.toFixed(1); }
+      gridx - optional - grid value for x. Also enables labels on axis
+      xlabel - optional - function(x_value) to format x axis labels, eg: function(x) { return x.toFixed(1); }
+    }
+   */
   TD.graph = function(opts) {
-    var el = setup(opts,toElement('<div class="td td_graph"><span>'+opts.label+'</span><canvas></canvas></div>'));
+    var el = setup("graph",opts,toElement('<div class="td td_graph"><span>'+opts.label+'</span><canvas></canvas></div>'));
     var c = el.getElementsByTagName("canvas")[0];
     var ctx = c.getContext("2d");
     el.setData = function(d) {
@@ -184,6 +191,7 @@ var TD = {};
       var ybase = c.height-18;
       var xs = (c.width-8-xbase);
       var ys = (ybase-28);
+      ctx.font = "8px Sans";
       ctx.fillStyle = "#000";
       ctx.fillRect(4,24,c.width-8,c.height-28);
       var dxmin,dxmax,dymin,dymax;
@@ -200,20 +208,47 @@ var TD = {};
             if (dymax===undefined || v>dymax) dymax=v;
           }
         });
+        if (el.opts.gridy) {
+          var gy = el.opts.gridy;
+          dymin = gy*Math.floor(dymin/gy);
+          dymax = gy*Math.ceil(dymax/gy);
+        }
         var dxs = dxmax+1-dxmin;
         var dys = dymax-dymin;
         if (dxs==0) dxs=1;
         if (dys==0) dys=1;
+        function getx(x) { return xbase+(xs*(x-dxmin)/dxs); }
+        function gety(y) { return ybase-(ys*(y-dymin)/dys); }
         traces.forEach(function(trace, idx) {
           ctx.beginPath();
           ctx.strokeStyle = (traces.length>1) ? "hsl("+(idx*360/traces.length)+", 100%, 50%)" : LIGHTCOL;
           for (var i in trace) {
-            var v = parseFloat(trace[i]);
-            ctx.lineTo(xbase+(xs*(parseFloat(i)-dxmin)/dxs),
-                       ybase-(ys*(v-dymin)/dys));
+            ctx.lineTo(getx(parseFloat(i)),
+                       gety(parseFloat(trace[i])));
           }
           ctx.stroke();
         });
+        ctx.fillStyle = "#fff";
+        if (el.opts.gridy) {
+          ctx.textAlign="right";
+          for (var i=dymin;i<=dymax;i+=el.opts.gridy) {
+            var y = gety(i);
+            var t = el.opts.ylabel?el.opts.ylabel(i):i;
+            ctx.fillRect(xbase-1, y, 3, 1);
+            if (y>ctx.measureText(t).width/2) // does it fit?
+              ctx.fillText(t, xbase-5, y+2);
+          }
+        }
+        if (el.opts.gridx) {
+          var gx = el.opts.gridx;
+          ctx.textAlign="center";
+          for (var i=gx*Math.ceil(dxmin/gx);i<=dxmax;i+=gx) {
+            var x = getx(i);
+            var t = el.opts.xlabel?el.opts.xlabel(i):i;
+            ctx.fillRect(x,ybase-1, 1, 3);
+            ctx.fillText(t, x, ybase+10);
+          }
+        }
       } else {
         ctx.fillStyle = "#888";
         ctx.textAlign = "center";
@@ -237,7 +272,7 @@ var TD = {};
   */
   TD.log = function(opts) {
     if (!opts.text) opts.text="";
-    var el = setup(opts,toElement('<div class="td td_log"><span>'+opts.label+'</span><div class="td_log_a td_scrollable"></div></div>'));
+    var el = setup("log",opts,toElement('<div class="td td_log"><span>'+opts.label+'</span><div class="td_log_a td_scrollable"></div></div>'));
     el.update = function() {
       el.getElementsByClassName("td_log_a")[0].innerHTML = opts.text.replace(/\n/g,"<br/>\n");
     };
@@ -255,7 +290,7 @@ var TD = {};
   };
   /* {label}*/
   TD.modal = function(opts) {
-    var el = setup(opts,toElement('<div class="td td_modal"><span>'+opts.label+'</span></div>'));
+    var el = setup("modal",opts,toElement('<div class="td td_modal"><span>'+opts.label+'</span></div>'));
     el.onclick = function() {
       togglePressed(el);
       if (!el.opts.onchange)
