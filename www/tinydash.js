@@ -148,7 +148,7 @@ var TD = {};
       ctx.beginPath();
       ctx.lineWidth=20;
       ctx.strokeStyle = "#000";
-      ctx.arc(s/2, s/2+20, (s/2)-24, Math.PI*0.75, 2.25 * Math.PI);
+      ctx.arc(c.width/2, c.height/2+20, (s/2)-24, Math.PI*0.75, 2.25 * Math.PI);
       ctx.stroke();
       ctx.beginPath();
       ctx.lineWidth=16;
@@ -156,7 +156,7 @@ var TD = {};
       var v = (el.value-min) / (max-min);
       if (v<0) v=0;
       if (v>1) v=1;
-      ctx.arc(s/2, s/2+20, (s/2)-24, Math.PI*0.75, (0.75+(1.5*v))*Math.PI);
+      ctx.arc(c.width/2, c.height/2+20, (s/2)-24, Math.PI*0.75, (0.75+(1.5*v))*Math.PI);
       ctx.stroke();
     }
     setTimeout(draw,100);
