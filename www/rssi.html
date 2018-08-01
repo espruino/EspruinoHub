@@ -17,7 +17,10 @@
         l:TD.label({x:10,y:10,width:200,height:60,label:"RSSI Graph"}),
         deviceCount:TD.gauge({x:10,y:80,width:200,height:200,label:"Devices",value:0,min:0,max:40,name:"gauge"}),
         log:TD.log({x:220,y:10,width:400,height:200,label:"Connection Log",text:""}),
-        gr:TD.graph({x:220,y:220,width:400,height:170,label:"Signal Strengths",data:[]})
+        gr:TD.graph({x:220,y:220,width:400,height:250,label:"Signal Strengths",data:[],
+                     gridy:10,
+                     gridx:24*60*60000, xlabel : function(t) { return new Date(t).toString().substr(0,3);},
+		    })
       };
       for (var i in o) document.body.appendChild(o[i]);
       function log(msg) {
@@ -45,8 +48,8 @@
             o.deviceCount.setValue(Object.keys(devices).length);
             // request history data
             client.publish("/hist/request/"+d, JSON.stringify({
-              interval : "minute",
-              age : 2, // hours
+              interval : "tenminutes",
+              age : 96, // hours
               topic : "/ble/advertise/"+d+"/rssi"
             }));
             // update graph
@@ -67,11 +70,11 @@
             updateGraph();
           }
         }
-        // One minute's worth of data received
-        if (message.destinationName.startsWith("/hist/minute/ble/advertise/")) {
+        // One minute's worth of data received - add it to the graph
+        if (message.destinationName.startsWith("/hist/minute/ble/advertise/") && topic[6]=="rssi") {
           var dev = topic[5];
           if (dev in devices)
-            devices[dev].rssi.push(parseFloat(message.payloadString));
+            devices[dev].rssi[Date.now()] = parseFloat(message.payloadString);
           o.gr.draw();
         }
       };
