@@ -53,7 +53,7 @@ You can now type `./start.sh` to run EspruinoHub, but it's worth checking out th
 ```
 # Install Node, Bluetooth, etc
 sudo apt-get update
-sudo apt-get install git-core nodejs nodejs-legacy npm build-essential mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
+sudo apt-get install git-core nodejs npm build-essential mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
 # Now get EspruinoHub
 git clone https://github.com/espruino/EspruinoHub
 # Install EspruinoHub's required Node libraries
