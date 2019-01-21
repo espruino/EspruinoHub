@@ -243,7 +243,7 @@ on a Puck.js BLE UART connection with:
 
 ```
 => /ble/notify/c7:f9:36:dd:b0:ca/nus/nus_rx
-"\x10E.getTemperature()\n" => /ble/write/c7:f9:36:dd:b0:ca/nus/nus_tx
+"\x10Bluetooth.println(E.getTemperature())\n" => /ble/write/c7:f9:36:dd:b0:ca/nus/nus_tx
 
 /ble/data/c7:f9:36:dd:b0:ca/nus/nus_rx => "23\r\n"
 ```
