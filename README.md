@@ -228,7 +228,7 @@ be very long when converted to a String.
 You can also connect to a device using MQTT packets:
 
 * `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` connects and writes to the charactertistic
-* `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic
+* `/ble/read/DEVICE/SERVICE/CHARACTERISTIC` connects and reads from the charactertistic, sending the result back as a topic `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
 * `/ble/read/DEVICE` connects and reads an array of services and charactertistics
 * `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic, which
 send data back on `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
