@@ -1,6 +1,6 @@
 {
   "name": "EspruinoHub",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Linux based hub software for Puck.js / Espruino",
   "main": "index.js",
   "scripts": {},
@@ -18,10 +18,10 @@
   "author": "Gordon Williams (gw@pur3.co.uk)",
   "license": "MPL-2.0",
   "dependencies": {
-    "bleno": "^0.4.1",
+    "@abandonware/bleno": "^0.5.1-0",
     "json5": "^1.0.1",
     "mqtt": "^2.0.1",
-    "noble": "^1.7.0",
+    "@abandonware/noble": "^1.9.2-3",
     "websocket": "^1.0.24"
   }
 }
