@@ -23,9 +23,10 @@ Ideally use a Raspberry Pi 3 or Zero W, as these have Bluetooth LE on them alrea
 These instructions install up to date Node.js and Node-RED - however it can take a while! If you just want EspruinoHub and the IDE, see the next item.
 
 ```
-sudo apt-get install build-essential python-rpi.gpio
+sudo apt-get update
+sudo apt-get install build-essential python-rpi.gpio nodejs nodered
 # OPTIONAL: Install a modern version of nodejs and nodered
-# Not recommended - This installs Node 10 which currently has issues with Bluetooth LE support
+# Not recommended - The Pi's supplied Node.js version is more than good enough
 # bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
 # Get dependencies
 sudo apt-get install mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
