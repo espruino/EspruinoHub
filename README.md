@@ -120,6 +120,17 @@ fi
 * The HTTP Proxy service is disabled by default and needs some configuration - see **HTTP Proxy** below
 * You used to need a local copy of the Espruino Web IDE, however now EspruinoHub just serves up an IFRAME which points to the online IDE, ensuring it is always up to date.
 
+### Uninstalling
+
+Assuming you followed the steps above (including for 'Headless Startup') you can
+uninstall EspruinoHub using the following commands: 
+
+```
+sudo systemctl stop EspruinoHub.service
+sudo systemctl disable EspruinoHub.service
+sudo rm /etc/systemd/system/EspruinoHub.service
+sudo rm -rf ~/EspruinoHub
+```
 
 Usage
 -----
