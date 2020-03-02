@@ -37,6 +37,7 @@
   "//mqtt_host": "mqtts://example.duckdns.org",
   "//mqtt_options": {
     "username": "user",
-    "password": "pass"
+    "password": "pass",
+    "clientId": "clientid"
   }
 }
