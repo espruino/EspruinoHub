@@ -39,5 +39,7 @@
     "username": "user",
     "password": "pass",
     "clientId": "clientid"
-  }
+  },
+  "// Define the topic prefix under which the MQTT data will be posted. Defaults to /ble which is not adviced. For new installation, please activate the option below.":0,
+  "//mqtt_prefix": "ble"
 }
