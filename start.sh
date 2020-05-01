@@ -16,4 +16,4 @@ else
 fi
 
 # start properly
-nodemon index.js
+node index.js
