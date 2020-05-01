@@ -14,7 +14,7 @@
   "// Setting a value of 0 disables the exit/restart.":0,
   "ble_timeout": 20,
 
-  "// We can add our own custom advertising UUIDs here with names to help decode them":0, 
+  "// We can add our own custom advertising UUIDs here with names to help decode them":0,
   "advertised_services" : {
     "ffff" : {
       "name" : "level"
@@ -28,11 +28,13 @@
   "// Set this to enable the HTTP proxy - it's off by default for safety":0,
   "// since it would be possible to spoof MAC addresses and use your":0,
   "// connection":0,
+  "// NOTE: Some Bluetooth adaptors will cause the error: Command Disallowed (0xc)":0,
+  "// when trying to connect if http_proxyis enabled.":0,
   "http_proxy" : false,
 
   "// If there are any addresses here, they are given access to the HTTP proxy":0,
   "http_whitelist" : [
-    "e7:e0:57:ad:36:a2"    
+    "e7:e0:57:ad:36:a2"
   ],
   "//mqtt_host": "mqtts://example.duckdns.org",
   "//mqtt_options": {

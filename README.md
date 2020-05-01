@@ -123,7 +123,7 @@ fi
 ### Uninstalling
 
 Assuming you followed the steps above (including for 'Headless Startup') you can
-uninstall EspruinoHub using the following commands: 
+uninstall EspruinoHub using the following commands:
 
 ```
 sudo systemctl stop EspruinoHub.service
@@ -210,7 +210,7 @@ Data that is received via bluetooth advertising will be relayed over MQTT in the
   * `2a6e` decodes to `temp` (Temperature in C)
   * `2a6f` decodes to `humidity` (Humidity in %)
   * `ffff` decodes to `data` (This is not a standard - however it's useful for debugging or quick tests)
-* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent. (A JSON5 parser is used, so the more compact `{a:5,b:10}` is also valid). 
+* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent. (A JSON5 parser is used, so the more compact `{a:5,b:10}` is also valid).
 
 You can take advantage of Espruino's manufacturer ID `0x0590` to relay JSON over
 Bluetooth LE advertising using the following code on an Espruino board:
@@ -343,6 +343,8 @@ HTTP Proxy
 EspruinoHub implements the [Bluetooth HTTP Proxy service](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.http_proxy.xml)
 
 The HTTP Proxy is disabled by default as it can give any Bluetooth LE device in range access to your network. To fix this, edit the `http_proxy` and `http_whitelist` entries in `config.json` to enable the proxy and whitelist devices based on address (which you can find from EspruinoHub's status of MQTT advertising packets).
+
+**NOTE:** Some Bluetooth adaptors (eg CSR / `0a12:0001`) will cause the error `Command Disallowed (0xc)` when attempting to connect to a device when `http_proxy` is enabled.
 
 To allow Bluetooth to advertise services (for the HTTP proxy) you also need:
 
