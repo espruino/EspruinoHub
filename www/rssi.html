@@ -13,6 +13,7 @@
     <script src="tinydash.js"></script>
     <script src="paho-mqtt.js"></script>
     <script>
+      var mqtt_prefix = "/ble";
       var o = {
         l:TD.label({x:10,y:10,width:200,height:60,label:"RSSI Graph"}),
         deviceCount:TD.gauge({x:10,y:80,width:200,height:200,label:"Devices",value:0,min:0,max:40,name:"gauge"}),
@@ -39,7 +40,7 @@
         //log(""+message.destinationName+"  ->  "+JSON.stringify(message.payloadString));
         var topic = message.destinationName.split("/");
         // New device found!
-        if (message.destinationName.startsWith("/ble/advertise/")) {
+        if (message.destinationName.startsWith(mqtt_prefix + "/advertise/")) {
           var d = topic[3];
           if (!(d in devices)) {
             // Add to array
@@ -50,7 +51,7 @@
             client.publish("/hist/request/"+d, JSON.stringify({
               interval : "tenminutes",
               age : 96, // hours
-              topic : "/ble/advertise/"+d+"/rssi"
+              topic : mqtt_prefix +"/advertise/"+d+"/rssi"
             }));
             // update graph
             updateGraph();
@@ -71,7 +72,7 @@
           }
         }
         // One minute's worth of data received - add it to the graph
-        if (message.destinationName.startsWith("/hist/minute/ble/advertise/") && topic[6]=="rssi") {
+        if (message.destinationName.startsWith("/hist/minute/" + mqtt_prefix + "/advertise/") && topic[6]=="rssi") {
           var dev = topic[5];
           if (dev in devices)
             devices[dev].rssi[Date.now()] = parseFloat(message.payloadString);

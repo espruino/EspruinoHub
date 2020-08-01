@@ -18,6 +18,7 @@ Loading IDE...</iframe>
   var onPong;
   var onDataWritten;
   // IDE IFrame
+  var mqtt_prefix = "/ble";
   var IDE = EspruinoIDE(document.getElementById('ideframe'));
   IDE.onready = function(data) {
     // Try and connect to websocket server right away - it makes the connection window snappier
@@ -64,22 +65,22 @@ Loading IDE...</iframe>
       closeSerial();
     }, 10000);
     // Subscribe to data
-    websocket.subscribe("/ble/data/"+deviceAddress+"/nus/nus_rx");
-    websocket.subscribe("/ble/pong/"+deviceAddress);
-    websocket.subscribe("/ble/written/"+deviceAddress+"/nus/nus_tx");
+    websocket.subscribe(mqtt_prefix+"/data/"+deviceAddress+"/nus/nus_rx");
+    websocket.subscribe(mqtt_prefix+"/pong/"+deviceAddress);
+    websocket.subscribe(mqtt_prefix+"/written/"+deviceAddress+"/nus/nus_tx");
     // request notifications of serial RX
-    sendMessage("/ble/notify/"+deviceAddress+"/nus/nus_rx","");
+    sendMessage(mqtt_prefix+"/notify/"+deviceAddress+"/nus/nus_rx","");
     // send a ping so when we get a pong we know we're connected
-    sendMessage("/ble/ping/"+deviceAddress+"", "");
+    sendMessage(mqtt_prefix+"/ping/"+deviceAddress+"", "");
     // keep pinging so the connection doesn't close
     pingInterval = setInterval(function() {
-      sendMessage("/ble/ping/"+deviceAddress+"", "");
+      sendMessage(mqtt_prefix+"/ping/"+deviceAddress+"", "");
     }, 3000);
   };
   IDE.onwritecb = function(data, callback) {
     if (!deviceAddress) return;
     onDataWritten = callback;    
-    sendMessage("/ble/write/"+deviceAddress+"/nus/nus_tx", data);
+    sendMessage(mqtt_prefix+"/write/"+deviceAddress+"/nus/nus_tx", data);
   };
   IDE.ondisconnect = function(data) {
     closeSerial();    
@@ -99,17 +100,17 @@ Loading IDE...</iframe>
     };
     // called when a message arrives
     websocket.onMessageArrived = function(message) {
-      if (deviceAddress && message.destinationName == "/ble/data/"+deviceAddress+"/nus/nus_rx") {
+      if (deviceAddress && message.destinationName == mqtt_prefix+"/data/"+deviceAddress+"/nus/nus_rx") {
         // Receive data from device
         IDE.received(message.payloadString);
-      } else if (deviceAddress && message.destinationName == "/ble/pong/"+deviceAddress) {
+      } else if (deviceAddress && message.destinationName == mqtt_prefix+"/pong/"+deviceAddress) {
         // When we get a 'pong' back, call this - so we know we're connected
         if (onPong) onPong();
         onPong = undefined;
-      } else if (deviceAddress && message.destinationName == "/ble/written/"+deviceAddress+"/nus/nus_tx") {
+      } else if (deviceAddress && message.destinationName == mqtt_prefix+"/written/"+deviceAddress+"/nus/nus_tx") {
         if (onDataWritten) onDataWritten();
         onDataWritten = undefined;
-      } else if (message.destinationName.substr(0,15)=="/ble/advertise/") {
+      } else if (message.destinationName.substr(0,15)==mqtt_prefix+"/advertise/") {
         // advertising for new devices
         var address = message.destinationName.substr(15);
         try {
@@ -147,7 +148,7 @@ Loading IDE...</iframe>
     websocket.connect({onSuccess:function() {
       console.log("Websockets> Connected");
       // Subscribe to advertising data
-      websocket.subscribe("/ble/advertise/+");
+      websocket.subscribe(mqtt_prefix+"/advertise/+");
     }});
   }
 
@@ -167,8 +168,8 @@ Loading IDE...</iframe>
       pingInterval = undefined;
     }
     if (websocket && deviceAddress) {
-      websocket.unsubscribe("/ble/data/"+deviceAddress+"/nus/nus_rx");
-      websocket.unsubscribe("/ble/pong/"+deviceAddress);
+      websocket.unsubscribe(mqtt_prefix+"/data/"+deviceAddress+"/nus/nus_rx");
+      websocket.unsubscribe(mqtt_prefix+"/pong/"+deviceAddress);
     }
     deviceAddress = undefined;
     IDE.disconnect();

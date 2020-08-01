@@ -14,8 +14,8 @@
   "// Setting a value of 0 disables the exit/restart.":0,
   "ble_timeout": 20,
 
-  "// MQTT path for history requests and output. Default is /hist/":0,
-  "history_path": "/hist/",
+  "// MQTT path for history requests and output. Default is /ble/hist/ . Empty to disable":0,
+  "history_path": "/ble/hist/",
 
   "// We can add our own custom advertising UUIDs here with names to help decode them":0,
   "advertised_services" : {
