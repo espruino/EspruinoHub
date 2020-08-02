@@ -39,7 +39,7 @@
   "http_whitelist" : [
     "e7:e0:57:ad:36:a2"
   ],
-  "//mqtt_host": "mqtts://example.duckdns.org",
+  "mqtt_host": "mqtt://localhost",
   "//mqtt_options": {
     "username": "user",
     "password": "pass",

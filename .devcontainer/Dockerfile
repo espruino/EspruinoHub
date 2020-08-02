@@ -10,7 +10,7 @@ USER root
 # Install dependencies
 RUN apt-get -yqq update && \
     apt-get -yqq --no-install-recommends install git build-essential bluetooth bluez libbluetooth-dev libudev-dev bluez-tools rfkill && \
-    apt-get -yqq --no-install-recommends install wget libcap2-bin python && \
+    apt-get -yqq --no-install-recommends install wget libcap2-bin python mosquitto && \
     #if [ "${arch}" == "armv6l"]; then \
     #    apt-get -yqq --no-install-recommends install python-rpi.gpio; \
     #fi && \
@@ -32,7 +32,7 @@ RUN cd / && \
 RUN usermod -a -G bluetooth root && \
     setcap cap_net_raw+eip /usr/local/bin/node
 
-EXPOSE 1888
+EXPOSE 1888 1883
 
 RUN mkdir /workspaces
     
