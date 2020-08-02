@@ -14,6 +14,10 @@
   "// Setting a value of 0 disables the exit/restart.":0,
   "ble_timeout": 20,
 
+  "// How many seconds to wait for emitting a presence event, after latest time polled":0,
+  "// Default is 60 seconds":0,
+  "presence_timeout" : 30,
+
   "// MQTT path for history requests and output. Default is /ble/hist/ . Empty to disable":0,
   "history_path": "/ble/hist/",
 
