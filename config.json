@@ -17,8 +17,9 @@
   "// How many seconds to wait for emitting a presence event, after latest time polled":0,
   "// Default is 60 seconds":0,
   "presence_timeout" : 30,
-
-  "max_connections" : 10,
+  
+  "// Number of simultaneous bluetooth connection the device can handle (PI Zero=4)":0,
+  "max_connections" : 4,
 
   "connection_timeout": 20,
 
