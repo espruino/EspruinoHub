@@ -18,8 +18,12 @@
   "// Default is 60 seconds":0,
   "presence_timeout" : 30,
 
-  "// MQTT path for history requests and output. Default is /ble/hist/ . Empty to disable":0,
-  "history_path": "/ble/hist/",
+  "max_connections" : 10,
+
+  "connection_timeout": 20,
+
+  "// MQTT path for history requests and output. Default is Empty (to disable).":0,
+  "//history_path": "/ble/hist/",
 
   "// We can add our own custom advertising UUIDs here with names to help decode them":0,
   "advertised_services" : {
