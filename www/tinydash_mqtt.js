@@ -10,21 +10,22 @@ Use as follows:
     <script src="tinydash_mqtt.js"></script>
     <script src="paho-mqtt.js"></script>
     <script>
+      var mqtt_prefix = "/ble";
       var o = {
         l:TD.label({x:10,y:10,width:200,height:60,label:"My Stats"}),
         log:TD.log({x:220,y:10,width:400,height:200,label:"Connection Log",text:""}),
         tempgraph:TD.graph({
                 x:220,y:580,width:400,height:170,label:"Temperature Graph",gridx:24*60*60000,gridy:5,
                 xlabel : function(t) { return ((Date.now()-t)/(24*60*60000)).toFixed(1)+" days";},
-                mqttTopic:"/ble/temp/f0:98:9e:6c:0c:2f", 
+                mqttTopic: mqtt_prefix + "/temp/f0:98:9e:6c:0c:2f", 
                 mqttAge: 96 // 96 hours = 4 days
         }),
         mygauge:TD.gauge({x:10,y:80,width:200,height:200,label:"Temperature Gauge",value:"--",
                           min:0,max:100,name:"gauge",
-                          mqttTopic:"/ble/temp/mydevice"},
+                          mqttTopic:mqtt_prefix+"/temp/mydevice"},
         button:TD.button({x:10,y:500,width:200,height:100,label:":Light LED",value:0,
                           name:"button",
-                          mqttTopic:"/ble/write/c0:03:88:c9:0d:ec/nus/nus_tx",mqttMessage:"LED1.set()\n"}),
+                          mqttTopic:mqtt_prefix+"/write/c0:03:88:c9:0d:ec/nus/nus_tx",mqttMessage:"LED1.set()\n"}),
       };
       for (var i in o) document.body.appendChild(o[i]);
       function log(msg) {
@@ -66,7 +67,7 @@ function linkMQTT(id, obj) {
       var highres = true;
       var age = obj.opts.mqttAge||12;
       var interval = (age<24)?"minute":"tenminutes";
-      TD.mqttAddTopicHandler("/hist/minute"+mqttTopic, true, function(topic, payload) {
+      TD.mqttAddTopicHandler("/hist/minute/"+mqttTopic, true, function(topic, payload) {
         if (obj.opts.data) {
           obj.opts.data[Date.now()] = parseFloat(payload);
           obj.draw();

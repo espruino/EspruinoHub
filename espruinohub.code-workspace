@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Start EspruinoHub",
+				"type": "shell",
+				"command": "./start.sh",
+			}
+		]
+	}	
+}

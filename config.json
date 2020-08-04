@@ -14,8 +14,17 @@
   "// Setting a value of 0 disables the exit/restart.":0,
   "ble_timeout": 20,
 
-  "// MQTT path for history requests and output. Default is /hist/":0,
-  "history_path": "/hist/",
+  "// How many seconds to wait for emitting a presence event, after latest time polled":0,
+  "// Default is 60 seconds":0,
+  "presence_timeout" : 30,
+  
+  "// Number of simultaneous bluetooth connection the device can handle (PI Zero=4)":0,
+  "max_connections" : 4,
+
+  "connection_timeout": 20,
+
+  "// MQTT path for history requests and output. Default is Empty (to disable).":0,
+  "//history_path": "/ble/hist/",
 
   "// We can add our own custom advertising UUIDs here with names to help decode them":0,
   "advertised_services" : {
@@ -39,7 +48,7 @@
   "http_whitelist" : [
     "e7:e0:57:ad:36:a2"
   ],
-  "//mqtt_host": "mqtts://example.duckdns.org",
+  "mqtt_host": "mqtt://localhost",
   "//mqtt_options": {
     "username": "user",
     "password": "pass",
