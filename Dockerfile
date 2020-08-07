@@ -9,7 +9,6 @@ RUN apt-get update \
                        libbluetooth-dev \
                        libudev-dev \
                        mosquitto-clients \
-                       git \
                        build-essential \
                        python3 \
                        ca-certificates \
@@ -21,7 +20,7 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
  && tar -xzf "node-v$NODE_VERSION-linux-$ARCH.tar.gz" -C /usr/local --strip-components=1 \
  && rm "node-v$NODE_VERSION-linux-$ARCH.tar.gz"
 
-RUN git clone https://github.com/espruino/EspruinoHub
+ADD / /EspruinoHub
 
 WORKDIR /EspruinoHub
 
