@@ -110,9 +110,10 @@ Loading IDE...</iframe>
       } else if (deviceAddress && message.destinationName == mqtt_prefix+"/written/"+deviceAddress+"/nus/nus_tx") {
         if (onDataWritten) onDataWritten();
         onDataWritten = undefined;
-      } else if (message.destinationName.substr(0,15)==mqtt_prefix+"/advertise/") {
+      } else if (message.destinationName.startsWith(mqtt_prefix+"/advertise/")) {
         // advertising for new devices
-        var address = message.destinationName.substr(15);
+        var topic_prefix = mqtt_prefix+"/advertise/";
+        var address = message.destinationName.substr(topic_prefix.length);
         try {
           var j = JSON.parse(message.payloadString);
           var isEspruino = false;
