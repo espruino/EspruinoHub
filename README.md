@@ -132,6 +132,17 @@ sudo rm /etc/systemd/system/EspruinoHub.service
 sudo rm -rf ~/EspruinoHub
 ```
 
+Run with Docker
+---------------
+
+Build on Raspberry Pi Zero:
+
+    docker build -t espruino/espruinohub:armhf https://github.com/espruino/EspruinoHub.git
+
+Run from the directory containing your `config.json`:
+
+    docker run -d -v $PWD/config.json:/EspruinoHub/config.json:ro --restart=always --net=host --name espruinohub espruino/espruinohub:armhf
+
 Usage
 -----
 
