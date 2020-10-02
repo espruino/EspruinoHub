@@ -24,14 +24,18 @@ These instructions install up to date Node.js and Node-RED - however it can take
 
 ```
 sudo apt-get update
-sudo apt-get install build-essential python-rpi.gpio nodejs nodered
+# OPTIONAL: Update everything to latest versions
+sudo apt-get upgrade -y 
+# Get required packages
+sudo apt-get install -y build-essential python-rpi.gpio nodejs nodered git-core
 # OPTIONAL: Install a modern version of nodejs and nodered
 # Not recommended - The Pi's supplied Node.js version is more than good enough
 # bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
 # Get dependencies
-sudo apt-get install mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
+sudo apt-get install -y mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
 # Auto start Node-RED
 sudo systemctl enable nodered.service
+# wait for the ~/.node-red directory to get created...
 # Start nodered manually this one time (this creates ~/.node-red)
 sudo systemctl start nodered.service
 # Install the Node-RED UI
@@ -42,10 +46,11 @@ git clone https://github.com/espruino/EspruinoHub
 # Install EspruinoHub's required Node libraries
 cd EspruinoHub
 npm install
-# Optional - enable gathering of historical data by creating a 'log' directory
-mkdir log
+
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
+
+# You may need to run the setcap line above again if you update Node.js
 ```
 
 You can now type `./start.sh` to run EspruinoHub, but it's worth checking out the `Auto Start` section to see how to get it to run at boot.
@@ -55,16 +60,20 @@ You can now type `./start.sh` to run EspruinoHub, but it's worth checking out th
 ```
 # Install Node, Bluetooth, etc
 sudo apt-get update
-sudo apt-get install git-core nodejs npm build-essential mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
+# OPTIONAL: Update everything to latest versions
+sudo apt-get upgrade -y 
+# Get required packages
+sudo apt-get install -y git-core nodejs npm build-essential mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
 # Now get EspruinoHub
 git clone https://github.com/espruino/EspruinoHub
 # Install EspruinoHub's required Node libraries
 cd EspruinoHub
 npm install
-# Optional - enable gathering of historical data by creating a 'log' directory
-mkdir log
+
 # Give Node.js access to Bluetooth
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
+
+# You may need to run the setcap line above again if you update Node.js
 ```
 
 You can now type `./start.sh` to run EspruinoHub, but it's worth checking out the `Auto Start` section to see how to get it to run at boot.
