@@ -35,9 +35,9 @@ sudo apt-get install -y build-essential python-rpi.gpio nodejs nodered git-core
 sudo apt-get install -y mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
 # Auto start Node-RED
 sudo systemctl enable nodered.service
-# wait for the ~/.node-red directory to get created...
 # Start nodered manually this one time (this creates ~/.node-red)
 sudo systemctl start nodered.service
+# wait for the ~/.node-red directory to get created...
 # Install the Node-RED UI
 cd ~/.node-red && npm install node-red-contrib-ui
 # Now get EspruinoHub
