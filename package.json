@@ -26,6 +26,6 @@
     "mqtt": "^2.0.1",
     "@abandonware/noble": "^1.9.2-8",
     "websocket": "^1.0.24",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.5"
   }
 }
