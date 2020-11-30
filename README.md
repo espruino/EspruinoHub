@@ -230,6 +230,7 @@ Data that is received via bluetooth advertising will be relayed over MQTT in the
   * `2a6e` decodes to `temp` (Temperature in C)
   * `2a6f` decodes to `humidity` (Humidity in %)
   * `ffff` decodes to `data` (This is not a standard - however it's useful for debugging or quick tests)
+* `/ble/json/DEVICE/UUID` - Decoded service data (as above) as JSON, eg `/ble/json/DEVICE/1809 => {"temp":16.5}` 
 * `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent. (A JSON5 parser is used, so the more compact `{a:5,b:10}` is also valid).
 
 You can take advantage of Espruino's manufacturer ID `0x0590` to relay JSON over
