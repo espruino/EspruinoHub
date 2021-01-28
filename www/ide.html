@@ -17,6 +17,7 @@ Loading IDE...</iframe>
   var pingInterval;
   var onPong;
   var onDataWritten;
+  var dataWrittenTimeout;
   // IDE IFrame
   var mqtt_prefix = "/ble";
   var IDE = EspruinoIDE(document.getElementById('ideframe'));
@@ -72,18 +73,31 @@ Loading IDE...</iframe>
     sendMessage(mqtt_prefix+"/notify/"+deviceAddress+"/nus/nus_rx","");
     // send a ping so when we get a pong we know we're connected
     sendMessage(mqtt_prefix+"/ping/"+deviceAddress+"", "");
-    // keep pinging so the connection doesn't close
+    /* Keep request notifications so the connection doesn't close
+    It's like a ping, but if the connection dies at least we'll reconnect
+    with notifications enabled. */
     pingInterval = setInterval(function() {
-      sendMessage(mqtt_prefix+"/ping/"+deviceAddress+"", "");
+      sendMessage(mqtt_prefix+"/notify/"+deviceAddress+"/nus/nus_rx", "");
     }, 3000);
   };
   IDE.onwritecb = function(data, callback) {
     if (!deviceAddress) return;
-    onDataWritten = callback;    
+    onDataWritten = function(d) {
+      if (dataWrittenTimeout) clearTimeout(dataWrittenTimeout);
+      dataWrittenTimeout = undefined;
+      callback(d);
+    }
     sendMessage(mqtt_prefix+"/write/"+deviceAddress+"/nus/nus_tx", data);
+    if (dataWrittenTimeout) clearTimeout(dataWrittenTimeout);
+    dataWrittenTimeout = setTimeout(function() {
+      dataWrittenTimeout = undefined;
+      console.warn("TIMEOUT WHILE WRITING - sending again");
+      sendMessage(mqtt_prefix+"/ping/"+deviceAddress+"", "");
+      IDE.onwritecb(data, callback);
+    }, 5000);
   };
   IDE.ondisconnect = function(data) {
-    closeSerial();    
+    closeSerial();
   };
 
   function websocketConnect() {
