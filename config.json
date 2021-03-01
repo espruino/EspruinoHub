@@ -1,6 +1,9 @@
 {
   "// If a device's address is here, it'll be given a human-readable name":0,
   "known_devices" : {
+    "c0:52:3f:50:42:c9" : "office",
+    "fc:a6:c6:04:db:79" : "hall_down",
+    "cf:71:de:4d:f8:48" : "hall_up"
   },
 
   "// Set this to true to only publish MQTT messages for known devices":0,
@@ -24,7 +27,7 @@
   "//history_path": "/ble/hist/",
 
   "// We can add our own custom advertising UUIDs here with names to help decode them":0,
-  "//advertised_services" : {
+  "advertised_services" : {
     "ffff" : {
       "name" : "level"
     }
@@ -43,6 +46,7 @@
 
   "// If there are any addresses here, they are given access to the HTTP proxy":0,
   "http_whitelist" : [
+    "e7:e0:57:ad:36:a2"
   ],
   "mqtt_host": "mqtt://localhost",
   "//mqtt_options": {
@@ -51,7 +55,7 @@
     "clientId": "clientid"
   },
   "// Define the topic prefix under which the MQTT data will be posted. Defaults to /ble which is not adviced. For new installation, please activate the option below.":0,
-  "mqtt_prefix": "ble",
+  "//mqtt_prefix": "ble",
   "mqtt_advertise": true,
   "mqtt_advertise_manufacturer_data": true,
   "mqtt_advertise_service_data": true,
