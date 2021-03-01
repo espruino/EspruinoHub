@@ -283,6 +283,14 @@ on a Puck.js BLE UART connection with:
 
 Once a `/ble/write/DEVICE/SERVICE/CHARACTERISTIC` has been executed, a `/ble/written/DEVICE/SERVICE/CHARACTERISTIC` packet will be sent in response.
 
+Payload can take the following values
+- **object as json** with type and data fields
+  available values for `type` =` Buffer, buffer, hex`
+- *boolean* uint8
+- *integer* uint8
+- *array* will be loop-encoded in uint8
+- *string* will be loop-encoded in uint8
+
 ### History
 
 EspruinoHub contains code (`libs/history.js`) that subscribes to any MQTT data
