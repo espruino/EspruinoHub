@@ -57,5 +57,6 @@
   "mqtt_advertise_service_data": true,
   "mqtt_format_json": true,
   "mqtt_format_decoded_key_topic": true,
-  "homeassistant": true
+  "homeassistant": true,
+  "mqtt_cache_state": true
 }
