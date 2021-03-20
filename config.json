@@ -1,13 +1,31 @@
 {
+  "// Set this to true to only publish MQTT messages for known devices":0,
+  "only_known_devices": false,
+
   "// If a device's address is here, it'll be given a human-readable name":0,
   "known_devices" : {
     "c0:52:3f:50:42:c9" : "office",
-    "fc:a6:c6:04:db:79" : "hall_down",
-    "cf:71:de:4d:f8:48" : "hall_up"
+    "f4:af:01:22:33:44" : {
+      "name" : "band",
+      "min_rssi" : -80,
+      "cache_state": false
+    },
+    "a4:c1:55:66:77:88" : {
+      "name" : "LYWSD03MMC",
+      "bind_key" : "0B49A588B2B7122FDFB1661C323E52F1"
+    },
+    "8d:3d:aa:bb:cc:xx" : {
+      "name" : "pvvx",
+      "presence_timeout" : 1,
+      "min_rssi" : -80,
+      "bind_key": "",
+      "model": "",
+      "cache_state": false
+    }
   },
 
-  "// Set this to true to only publish MQTT messages for known devices":0,
-  "only_known_devices": false,
+  "// skip advertise with a smaller signal":0,
+  "min_rssi" : -90,
 
   "// How many seconds to wait for a packet before considering BLE connection":0,
   "// broken and exiting. Higher values are useful with slowly advertising sensors.":0,
@@ -32,6 +50,16 @@
       "name" : "level"
     }
   },
+
+  "exclude_services": [
+    "ffff"
+  ],
+
+  "exclude_attributes": [
+    "flg",
+    "counter",
+    "productId"
+  ],
 
   "// Make this nonzero to enable the HTTP server on the given port.":0,
   "// See README.md for more info on what it does":0,
