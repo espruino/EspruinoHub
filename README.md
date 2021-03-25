@@ -387,6 +387,16 @@ sudo hciconfig hci0 up
 See https://github.com/sandeepmistry/bleno
 
 
+Home Assistant Integration
+--------------------------
+
+Follow the instructions at https://www.home-assistant.io/integrations/mqtt/ to enable Home Assistant to use an external MQTT broker. Assuming you're running on the same device as EspruinoHub, use `localhost` as the IP address for the MQTT server.
+
+Ensure that `homeassistant` is set to `true` in EspruinoHub's `config.json`. It's currently the default.
+
+Now, in the Home Assistant main page you should see new Sensors and Binary sensors which match any devices that EspruinoHub has found!
+
+
 Troubleshooting
 ---------------
 

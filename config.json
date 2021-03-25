@@ -54,13 +54,23 @@
     "password": "pass",
     "clientId": "clientid"
   },
+
   "// Define the topic prefix under which the MQTT data will be posted. Defaults to /ble which is not adviced. For new installation, please activate the option below.":0,
   "//mqtt_prefix": "ble",
-  "mqtt_advertise": true,
-  "mqtt_advertise_manufacturer_data": true,
-  "mqtt_advertise_service_data": true,
+
+  "// These are the types of MQTT topics that are created":0,
+  
+  "// Send /ble/advertise/ad:dr:es:ss JSON with raw advertising data, as well as /ble/advertise/ad:dr:es:ss/rssi":0,
+  "mqtt_advertise": false,
+  "// Send /ble/advertise/ad:dr:es:ss/manufacturer/uuid raw manufacturer data as well as decoded /ble/advertise/ad:dr:es:ss/json_key for json-formatted 0x0590 advertising data":0,
+  "mqtt_advertise_manufacturer_data": false,
+  "// Send /ble/advertise/ad:dr:es:ss/uuid raw service data":0,
+  "mqtt_advertise_service_data": false,
+  "// Send /ble/json/ad:dr:es:ss/uuid for decoded service data - REQUIRED FOR HOMEASSISTANT":0,
   "mqtt_format_json": true,
+  "// Send /ble/service_name/ad:dr:es:ss for decoded service data":0,
   "mqtt_format_decoded_key_topic": true,
+
+  "// Whether to enable Home Assistant integration":0,
   "homeassistant": true,
-  "mqtt_cache_state": true
 }
