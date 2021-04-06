@@ -72,5 +72,5 @@
   "mqtt_format_decoded_key_topic": true,
 
   "// Whether to enable Home Assistant integration":0,
-  "homeassistant": true,
+  "homeassistant": true
 }
