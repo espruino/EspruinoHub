@@ -61,7 +61,8 @@
   "// These are the types of MQTT topics that are created":0,
   
   "// Send /ble/advertise/ad:dr:es:ss JSON with raw advertising data, as well as /ble/advertise/ad:dr:es:ss/rssi":0,
-  "mqtt_advertise": false,
+  "// This is used by the localhost:1888/ide service to detect devices":0,
+  "mqtt_advertise": true,
   "// Send /ble/advertise/ad:dr:es:ss/manufacturer/uuid raw manufacturer data as well as decoded /ble/advertise/ad:dr:es:ss/json_key for json-formatted 0x0590 advertising data":0,
   "mqtt_advertise_manufacturer_data": false,
   "// Send /ble/advertise/ad:dr:es:ss/uuid raw service data":0,
