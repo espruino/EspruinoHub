@@ -231,7 +231,7 @@ Data that is received via bluetooth advertising will be relayed over MQTT in the
   * `2a6f` decodes to `humidity` (Humidity in %)
   * `ffff` decodes to `data` (This is not a standard - however it's useful for debugging or quick tests)
 * `/ble/json/DEVICE/UUID` - Decoded service data (as above) as JSON, eg `/ble/json/DEVICE/1809 => {"temp":16.5}`  (if `mqtt_format_json=true` in `config.json` - the default)
-* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":5,"b":10}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent. (A JSON5 parser is used, so the more compact `{a:5,b:10}` is also valid).
+* `/ble/advertise/DEVICE/espruino` - If manufacturer data is broadcast Espruino's manufacturer ID `0x0590` **and** it is valid JSON, it is rebroadcast. If an object like `{"a":1,"b":2}` is sent, `/ble/advertise/DEVICE/a` and `/ble/advertise/DEVICE/b` will also be sent. (A JSON5 parser is used, so the more compact `{a:1,b:2}` is also valid).
 
 You can take advantage of Espruino's manufacturer ID `0x0590` to relay JSON over
 Bluetooth LE advertising using the following code on an Espruino board:
@@ -241,20 +241,24 @@ var data = {a:1,b:2};
 NRF.setAdvertising({},{
   showName:false,
   manufacturer:0x0590,
-  manufacturerData:JSON.stringify(data)
+  manufacturerData:E.toJS(data) 
 });
+// Note: JSON.stringify(data) can be used instead of
+// E.toJS(data) to produce 'standard' JSON like {"a":1,"b":2}
+// instead of E.toJS's more compact {a:1,b:2}
 ```
 
 Assuming a device with an address of `ma:c_:_a:dd:re:ss` this will create the
 folling MQTT topics when `mqtt_advertise_manufacturer_data` is `true` in `config.json`:
 
-* `/ble/advertise/ma:c_:_a:dd:re:ss/espruino` -> `{"a":10,"b":15}`
+* `/ble/advertise/ma:c_:_a:dd:re:ss/espruino` -> `{"a":1,"b":2}`
 * `/ble/advertise/ma:c_:_a:dd:re:ss/a` -> `1`
 * `/ble/advertise/ma:c_:_a:dd:re:ss/b` -> `2`
 
 Note that **you only have 24 characters available for JSON**, so try to use
 the shortest field names possible and avoid floating point values that can
 be very long when converted to a String.
+
 
 ### Connections
 
