@@ -1,13 +1,37 @@
 {
+  "// Set this to true to only publish MQTT messages for known devices":0,
+  "only_known_devices": false,
+
   "// If a device's address is here, it'll be given a human-readable name":0,
   "known_devices" : {
     "c0:52:3f:50:42:c9" : "office",
-    "fc:a6:c6:04:db:79" : "hall_down",
-    "cf:71:de:4d:f8:48" : "hall_up"
+    "f4:af:01:22:33:44" : {
+      "name" : "band",
+
+      "// skip advertise with a smaller signal":0,
+      "min_rssi" : -80,
+
+      "// disable merging and sending cached data to json topic":0,
+      "cache_state": false
+    },
+    "a4:c1:55:66:77:88" : {
+      "name" : "LYWSD03MMC",
+
+      "// bind_key to decrypt the message":0,
+      "bind_key" : "0B49A588B2B7122FDFB1661C323E52F1"
+    },
+    "8d:3d:aa:bb:cc:xx" : {
+      "name" : "pvvx",
+      "// How many seconds to wait for emitting a presence event, after latest time polled":0,
+      "// Default is global presence_timeout or 60 seconds":0,
+      "presence_timeout" : 1,
+
+      "model": ""
+    }
   },
 
-  "// Set this to true to only publish MQTT messages for known devices":0,
-  "only_known_devices": false,
+  "// skip advertise with a smaller signal":0,
+  "min_rssi" : -90,
 
   "// How many seconds to wait for a packet before considering BLE connection":0,
   "// broken and exiting. Higher values are useful with slowly advertising sensors.":0,
@@ -59,7 +83,7 @@
   "//mqtt_prefix": "ble",
 
   "// These are the types of MQTT topics that are created":0,
-  
+
   "// Send /ble/advertise/ad:dr:es:ss JSON with raw advertising data, as well as /ble/advertise/ad:dr:es:ss/rssi":0,
   "// This is used by the localhost:1888/ide service to detect devices":0,
   "mqtt_advertise": true,
