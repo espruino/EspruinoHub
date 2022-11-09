@@ -152,6 +152,20 @@ Run from the directory containing your `config.json`:
 
     docker run -d -v $PWD/config.json:/data/config.json:ro --restart=always --net=host --name espruinohub ghcr.io/espruino/espruinohub
 
+Example for `docker-compose.yml`
+
+      espruinohub:
+        image: ghcr.io/espruino/espruinohub
+        hostname: espruinohub
+        container_name: espruinohub
+        environment:
+          - TZ=Europe/Amsterdam
+          - NOBLE_HCI_DEVICE_ID=0
+        network_mode: host
+        volumes:
+          - /home/twocolors/espruinohub:/data
+        restart: unless-stopped
+
 Usage
 -----
 
