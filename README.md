@@ -144,13 +144,15 @@ sudo rm -rf ~/EspruinoHub
 Run with Docker
 ---------------
 
+More information how work Bluetooth in docker you can read in artical "[How to run containerized Bluetooth applications with BlueZ](https://medium.com/omi-uulm/how-to-run-containerized-bluetooth-applications-with-bluez-dced9ab767f6)" by Thomas Huffert
+
 Install:
 
     docker pull ghcr.io/espruino/espruinohub
 
 Run from the directory containing your `config.json`:
 
-    docker run -d -v $PWD/config.json:/data/config.json:ro --restart=always --net=host --name espruinohub ghcr.io/espruino/espruinohub
+    docker run -d -v $PWD/config.json:/data/config.json:ro --restart=always --net=host --privileged --name espruinohub ghcr.io/espruino/espruinohub
 
 Example for `docker-compose.yml`
 
@@ -158,6 +160,7 @@ Example for `docker-compose.yml`
         image: ghcr.io/espruino/espruinohub
         hostname: espruinohub
         container_name: espruinohub
+        privileged: true
         environment:
           - TZ=Europe/Amsterdam
           - NOBLE_HCI_DEVICE_ID=0
