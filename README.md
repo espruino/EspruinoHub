@@ -144,7 +144,7 @@ sudo rm -rf ~/EspruinoHub
 Run with Docker
 ---------------
 
-More information how work Bluetooth in docker you can read in artical "[How to run containerized Bluetooth applications with BlueZ](https://medium.com/omi-uulm/how-to-run-containerized-bluetooth-applications-with-bluez-dced9ab767f6)" by Thomas Huffert
+More information how work Bluetooth in docker you can read in article "[How to run containerized Bluetooth applications with BlueZ](https://medium.com/omi-uulm/how-to-run-containerized-bluetooth-applications-with-bluez-dced9ab767f6)" by Thomas Huffert
 
 Install:
 
