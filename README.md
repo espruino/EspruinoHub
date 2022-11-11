@@ -146,6 +146,13 @@ Run with Docker
 
 More information how work Bluetooth in docker you can read in article "[How to run containerized Bluetooth applications with BlueZ](https://medium.com/omi-uulm/how-to-run-containerized-bluetooth-applications-with-bluez-dced9ab767f6)" by Thomas Huffert
 
+
+Currently, espruinohub has support for multiple architectures:
+- `amd64`   : based on linux Alpine - for most desktop computer (e.g. x64, x86-64, x86_64)
+- `arm32v6` : based on linux Alpine - (i.e. Raspberry Pi 1 & Zero)
+- `arm32v7` : based on linux Alpine - (i.e. Raspberry Pi 2, 3, 4)
+- `arm64v8` : based on linux Alpine - (i.e. Pine64)
+
 Install:
 
     docker pull ghcr.io/espruino/espruinohub
@@ -168,6 +175,10 @@ Example for `docker-compose.yml`
         volumes:
           - /home/twocolors/espruinohub:/data
         restart: unless-stopped
+
+Manual build:
+
+    docker build -t espruino/espruinohub https://github.com/espruino/EspruinoHub.git
 
 Usage
 -----
