@@ -25,7 +25,7 @@ These instructions install up to date Node.js and Node-RED - however it can take
 ```
 sudo apt-get update
 # OPTIONAL: Update everything to latest versions
-sudo apt-get upgrade -y 
+sudo apt-get upgrade -y
 # Get required packages
 sudo apt-get install -y build-essential python-rpi.gpio nodejs nodered git-core
 # OPTIONAL: Install a modern version of nodejs and nodered
@@ -61,7 +61,7 @@ You can now type `./start.sh` to run EspruinoHub, but it's worth checking out th
 # Install Node, Bluetooth, etc
 sudo apt-get update
 # OPTIONAL: Update everything to latest versions
-sudo apt-get upgrade -y 
+sudo apt-get upgrade -y
 # Get required packages
 sudo apt-get install -y git-core nodejs npm build-essential mosquitto mosquitto-clients bluetooth bluez libbluetooth-dev libudev-dev
 # Now get EspruinoHub
@@ -144,13 +144,41 @@ sudo rm -rf ~/EspruinoHub
 Run with Docker
 ---------------
 
-Build on Raspberry Pi Zero:
+More information how work Bluetooth in docker you can read in article "[How to run containerized Bluetooth applications with BlueZ](https://medium.com/omi-uulm/how-to-run-containerized-bluetooth-applications-with-bluez-dced9ab767f6)" by Thomas Huffert
 
-    docker build -t espruino/espruinohub:armhf https://github.com/espruino/EspruinoHub.git
+
+Currently, espruinohub has support for multiple architectures:
+- `amd64`   : based on linux Alpine - for most desktop computer (e.g. x64, x86-64, x86_64)
+- `arm32v6` : based on linux Alpine - (i.e. Raspberry Pi 1 & Zero)
+- `arm32v7` : based on linux Alpine - (i.e. Raspberry Pi 2, 3, 4)
+- `arm64v8` : based on linux Alpine - (i.e. Pine64)
+
+Install:
+
+    docker pull ghcr.io/espruino/espruinohub
 
 Run from the directory containing your `config.json`:
 
-    docker run -d -v $PWD/config.json:/EspruinoHub/config.json:ro --restart=always --net=host --name espruinohub espruino/espruinohub:armhf
+    docker run -d -v $PWD/config.json:/data/config.json:ro --restart=always --net=host --privileged --name espruinohub ghcr.io/espruino/espruinohub
+
+Example for `docker-compose.yml`
+
+      espruinohub:
+        image: ghcr.io/espruino/espruinohub
+        hostname: espruinohub
+        container_name: espruinohub
+        privileged: true
+        environment:
+          - TZ=Europe/Amsterdam
+          - NOBLE_HCI_DEVICE_ID=0
+        network_mode: host
+        volumes:
+          - /home/twocolors/espruinohub:/data
+        restart: unless-stopped
+
+Manual build:
+
+    docker build -t espruino/espruinohub https://github.com/espruino/EspruinoHub.git
 
 Usage
 -----
@@ -241,7 +269,7 @@ var data = {a:1,b:2};
 NRF.setAdvertising({},{
   showName:false,
   manufacturer:0x0590,
-  manufacturerData:E.toJS(data) 
+  manufacturerData:E.toJS(data)
 });
 // Note: JSON.stringify(data) can be used instead of
 // E.toJS(data) to produce 'standard' JSON like {"a":1,"b":2}
@@ -335,7 +363,7 @@ However, you can also request historical data by sending the JSON:
 {
   "topic" : "/hist/hour/ble/temp/f5:47:c8:0b:49:04",
   "interval" : "minute",
-  "age" : 6  
+  "age" : 6
 }
 ```
 
@@ -363,7 +391,7 @@ Requests can be of the form:
   "age" : 1, // hours
   // or:
   "from" : "1 July 2018",
-  "to" : "5 July 2018"     (or anything that works in new Date(...))  
+  "to" : "5 July 2018"     (or anything that works in new Date(...))
 }
 ```
 
