@@ -2,9 +2,7 @@ name: Create Docker Images
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -38,17 +36,23 @@ jobs:
           echo "current tags $TAGS"
           echo "TAGS=$TAGS" >> $GITHUB_ENV
 
-      - name: 3-setup-qemu-action
+      - name: 3-setup-tags-toLowerCase
+        uses: actions/github-script@v6
+        id: tags-tolowercase
+        with:
+          script: return `${process.env.TAGS.toLowerCase()}`
+          result-encoding: string
+      - name: 4-setup-qemu-action
         uses: docker/setup-qemu-action@v2
-      - name: 4-login-action
+      - name: 5-login-action
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: 5-setup-buildx-action
+      - name: 6-setup-buildx-action
         uses: docker/setup-buildx-action@v2
-      - name: 6-build-push-action
+      - name: 7-build-push-action
         uses: docker/build-push-action@v3
         continue-on-error: true
         with:
@@ -59,4 +63,4 @@ jobs:
           build-args: |
             NODE_VERSION=${{ matrix.node }}
           tags: |
-            ${{ env.TAGS }}
+            ${{ steps.tags-tolowercase.outputs.result }}
