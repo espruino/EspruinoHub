@@ -21,7 +21,7 @@
   "author": "Gordon Williams (gw@pur3.co.uk)",
   "license": "MPL-2.0",
   "dependencies": {
-    "@abandonware/bleno": "^0.5.1-2",
+    "@abandonware/bleno": "^0.6.1",
     "json5": "^2.2.2",
     "mqtt": "^2.0.1",
     "@abandonware/noble": "^1.9.2-8",
