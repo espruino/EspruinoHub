@@ -45,7 +45,11 @@
   "// Number of simultaneous bluetooth connection the device can handle (PI Zero=4)":0,
   "max_connections" : 4,
 
+  "// How long to wait before we disconnect an inactive bluetooth device":0,
   "connection_timeout": 20,
+
+  "// When a device sends data down a bluetooth 'notify' characteristic, should we keep the connection alive?":0,
+  "connection_alive_on_notify": false,
 
   "// MQTT path for history requests and output. Default is Empty (to disable).":0,
   "//history_path": "/ble/hist/",
