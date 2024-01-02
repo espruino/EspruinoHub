@@ -298,6 +298,7 @@ You can also connect to a device using MQTT packets:
 * `/ble/notify/DEVICE/SERVICE/CHARACTERISTIC` connects and starts notifications on the characteristic, which
 send data back on `/ble/data/DEVICE/SERVICE/CHARACTERISTIC`
 * `/ble/ping/DEVICE` connects, or maintains a connection to the device, and sends `/ble/pong/DEVICE` on success
+* `/ble/disconnect/DEVICE` will force a disconnect and send `/ble/disconnected/DEVICE` on completion. This is not normally required as EspruinoHub will automatically disconnect after a period of inactivity (see `connection_timeout` and `connection_alive_on_notify` in the config file)
 
 `SERVICE` and `CHARACTERISTIC` are either known names from [attributes.js](https://github.com/espruino/EspruinoHub/blob/master/lib/attributes.js)
 such as `nus` and `nus_tx` or are of the form `6e400001b5a3f393e0a9e50e24dcca9e` for 128 bit uuids or `abcd` for 16 bit UUIDs.
