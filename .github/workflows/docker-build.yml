@@ -7,13 +7,12 @@ on:
 jobs:
   build:
     env:
-      NODE_LATEST: 16
+      NODE_LATEST: 18
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node: [ 14, 16, 18 ]
-        suffix: [ "" ]
+        node: [ 16, 18, 20 ]
 
     steps:
       - name: 1-checkout
@@ -23,14 +22,9 @@ jobs:
       - name: 2-setup-image-setting
         id: setting
         run: |
-          SUFFIX=""
-          if [ "${{ matrix.suffix }}" != "" ]; then
-            SUFFIX="-${{ matrix.suffix}}"
-          fi
-
-          TAGS="ghcr.io/${{ github.repository }}:${{ matrix.node }}$SUFFIX"
+          TAGS="ghcr.io/${{ github.repository }}:${{ matrix.node }}"
           if [ "${{ matrix.node }}" == "${{ env.NODE_LATEST }}" ]; then
-            TAGS="$TAGS,ghcr.io/${{ github.repository }}:latest$SUFFIX"
+            TAGS="$TAGS,ghcr.io/${{ github.repository }}:latest"
           fi
 
           echo "current tags $TAGS"
