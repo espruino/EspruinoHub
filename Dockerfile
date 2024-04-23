@@ -1,4 +1,4 @@
-ARG NODE_VERSION=16
+ARG NODE_VERSION=18
 
 FROM node:${NODE_VERSION}-alpine AS build
 
@@ -20,9 +20,11 @@ FROM node:${NODE_VERSION}-alpine
 COPY --from=build /app /app
 
 RUN set -x \
-  && apk add --no-cache tzdata \
+  && apk add --no-cache tzdata libcap \
   && mkdir -p /data \
-  && cp /app/config.json /data/config.json
+  && cp /app/config.json /data/config.json \
+  # support port 80/443
+  && setcap 'cap_net_bind_service=+ep' `which node`
 
 WORKDIR /app
 
